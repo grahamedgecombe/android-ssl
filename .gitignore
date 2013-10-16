@@ -2,3 +2,7 @@
 *~
 !.git*
 !.mailmap
+*.iml
+*.ipr
+*.iws
+*/target
