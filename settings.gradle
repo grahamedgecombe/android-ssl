@@ -1,4 +1,5 @@
 rootProject.name = 'droidssl'
 
+include 'analysis'
 include 'apkdl'
 include 'test-hv'

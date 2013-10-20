@@ -22,7 +22,7 @@ allprojects {
 	version = '1.0.0'
 
 	repositories {
-		flatDir dirs: "${rootDir}/unpackaged/repo"
+		flatDir dirs: "${rootDir}/unpackaged"
 		mavenCentral()
 		maven {
 			url 'https://oss.sonatype.org/content/repositories/releases/'
@@ -40,6 +40,21 @@ allprojects {
 
 idea {
 	project.languageLevel = '1.7'
+}
+
+/* TODO reduce duplication */
+
+project(':analysis') {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.11'
+		compile name: 'soot', version: '20131020'
+	}
 }
 
 project(':apkdl') {
