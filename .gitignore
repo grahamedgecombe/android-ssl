@@ -5,4 +5,6 @@
 *.iml
 *.ipr
 *.iws
-*/target
+/out
+*/build
+*/gen
