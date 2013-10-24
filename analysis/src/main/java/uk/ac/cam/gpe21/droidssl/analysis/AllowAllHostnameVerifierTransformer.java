@@ -15,7 +15,7 @@ public final class AllowAllHostnameVerifierTransformer extends BodyTransformer {
 		SootMethod method = body.getMethod();
 
 		SootClass clazz = method.getDeclaringClass();
-		if (!clazz.implementsInterface("javax.net.ssl.HostnameVerifier"))
+		if (!clazz.implementsInterface(Types.HOSTNAME_VERIFIER.getClassName()))
 			return;
 
 		if (!Signatures.methodSignatureMatches(method, BooleanType.v(), "verify", Types.STRING, Types.SSL_SESSION))
