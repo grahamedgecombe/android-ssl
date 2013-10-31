@@ -15,6 +15,8 @@ public final class Types {
 
 	public static RefType X509_TRUST_MANAGER = RefType.v("javax.net.ssl.X509TrustManager");
 
+	public static RefType HTTPS_URL_CONNECTION = RefType.v("javax.net.ssl.HttpsURLConnection");
+
 	private Types() {
 		/* to prevent instantiation */
 	}

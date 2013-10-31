@@ -1,5 +1,6 @@
 package uk.ac.cam.gpe21.droidssl.analysis;
 
+import soot.Pack;
 import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
@@ -20,8 +21,10 @@ public final class StaticAnalyser {
 		 */
 		Options.v().set_unfriendly_mode(true);
 
-		PackManager.v().getPack("jtp").add(new Transform("jtp.jsse_hostname_verifier",       new JsseHostnameVerifierTransformer()));
-		PackManager.v().getPack("jtp").add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer()));
+		Pack jtp = PackManager.v().getPack("jtp");
+		jtp.add(new Transform("jtp.jsse_hostname_verifier", new JsseHostnameVerifierTransformer()));
+		jtp.add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer()));
+		jtp.add(new Transform("jtp.default_jsse_hostname_verifier", new DefaultJsseHostnameVerifierTransformer()));
 
 		soot.Main.main(new String[0]);
 	}

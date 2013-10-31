@@ -3,7 +3,8 @@ package uk.ac.cam.gpe21.droidssl.analysis;
 import soot.*;
 import soot.jimple.IntConstant;
 import soot.jimple.ReturnStmt;
-import soot.toolkits.graph.*;
+import soot.toolkits.graph.BriefUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
