@@ -16,7 +16,7 @@ public final class DefaultJsseHostnameVerifierTransformer extends BodyTransforme
 				InvokeStmt stmt = (InvokeStmt) unit;
 				SootMethod method = stmt.getInvokeExpr().getMethod();
 
-				if (!method.getDeclaringClass().getName().equals(Types.HTTPS_URL_CONNECTION.getClassName()))
+				if (!method.getDeclaringClass().getType().equals(Types.HTTPS_URL_CONNECTION))
 					continue;
 
 				if (!Signatures.methodSignatureMatches(method, VoidType.v(), "setDefaultHostnameVerifier", Types.HOSTNAME_VERIFIER))

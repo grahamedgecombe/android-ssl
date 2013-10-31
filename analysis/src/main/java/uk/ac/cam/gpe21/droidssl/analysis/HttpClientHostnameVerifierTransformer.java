@@ -16,7 +16,7 @@ public final class HttpClientHostnameVerifierTransformer extends BodyTransformer
 		SootMethod method = body.getMethod();
 
 		SootClass clazz = method.getDeclaringClass();
-		if (!clazz.getSuperclass().getName().equals(Types.ABSTRACT_VERIFIER.getClassName()))
+		if (!clazz.getSuperclass().getType().equals(Types.ABSTRACT_VERIFIER))
 			return;
 
 		if (!Signatures.methodSignatureMatches(method, VoidType.v(), "verify", Types.STRING, Types.STRING_ARRAY, Types.STRING_ARRAY))
