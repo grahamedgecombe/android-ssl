@@ -7,6 +7,9 @@ public final class Types {
 	public static RefType STRING = RefType.v("java.lang.String");
 	public static ArrayType STRING_ARRAY = ArrayType.v(STRING, 1);
 
+	public static RefType ACTIVITY = RefType.v("android.app.Activity");
+	public static RefType VIEW = RefType.v("android.view.View");
+
 	public static RefType SSL_SESSION = RefType.v("javax.net.ssl.SSLSession");
 	public static RefType SSL_EXCEPTION = RefType.v("javax.net.ssl.SSLException");
 

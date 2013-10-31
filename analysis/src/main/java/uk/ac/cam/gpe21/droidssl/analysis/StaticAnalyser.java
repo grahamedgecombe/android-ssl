@@ -31,6 +31,12 @@ public final class StaticAnalyser {
 		PhaseOptions.v().processPhaseOptions("cg.spark", "enabled:true,verbose:true");
 
 		/*
+		 * Add transforms to the Whole Jimple Pre-processing Pack.
+		 */
+		Pack wjpp = PackManager.v().getPack("wjpp");
+		wjpp.add(new Transform("wjpp.activity_entry_transformer", new ActivityEntryTransformer()));
+
+		/*
 		 * Add transforms to the Jimple Transformation Pack.
 		 */
 		Pack jtp = PackManager.v().getPack("jtp");
