@@ -9,7 +9,7 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.Map;
 
-public final class AllowAllHostnameVerifierTransformer extends BodyTransformer {
+public final class JsseHostnameVerifierTransformer extends BodyTransformer {
 	@Override
 	protected void internalTransform(Body body, String phase, Map<String, String> options) {
 		SootMethod method = body.getMethod();

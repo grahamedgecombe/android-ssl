@@ -20,7 +20,8 @@ public final class StaticAnalyser {
 		 */
 		Options.v().set_unfriendly_mode(true);
 
-		PackManager.v().getPack("jtp").add(new Transform("jtp.allow_all_hostname_verifier", new AllowAllHostnameVerifierTransformer()));
+		PackManager.v().getPack("jtp").add(new Transform("jtp.jsse_hostname_verifier",       new JsseHostnameVerifierTransformer()));
+		PackManager.v().getPack("jtp").add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer()));
 
 		soot.Main.main(new String[0]);
 	}
