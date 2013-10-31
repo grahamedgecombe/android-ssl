@@ -28,7 +28,7 @@ public final class StaticAnalyser {
 		 * Enable the SPARK points-to analysis.
 		 */
 		Options.v().set_whole_program(true);
-		PhaseOptions.v().processPhaseOptions("cg.spark", "enabled:true,verbose:true");
+		PhaseOptions.v().processPhaseOptions("cg.spark", "enabled:true");
 
 		/*
 		 * Add transforms to the Whole Jimple Pre-processing Pack.
