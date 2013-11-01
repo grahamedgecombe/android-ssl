@@ -50,7 +50,7 @@ public final class StaticAnalyser {
 		Pack wjtp = PackManager.v().getPack("wjtp");
 		wjtp.add(new Transform("wjtp.print_call_graph", new SceneTransformer() {
 			@Override
-			protected void internalTransform(String s, Map<String, String> stringStringMap) {
+			protected void internalTransform(String phase, Map<String, String> options) {
 				System.err.print(Scene.v().getCallGraph());
 			}
 		}));
