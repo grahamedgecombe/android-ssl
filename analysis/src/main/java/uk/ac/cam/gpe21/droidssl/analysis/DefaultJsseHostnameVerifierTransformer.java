@@ -41,7 +41,7 @@ public final class DefaultJsseHostnameVerifierTransformer extends BodyTransforme
 						continue;
 
 					RefType ref = (RefType) type;
-					if (ref.getSootClass().getTag(VulnerabilityTag.NAME) != null) {
+					if (ref.getSootClass().hasTag(VulnerabilityTag.NAME)) {
 						System.err.println("Method " + body.getMethod().getDeclaringClass().getName() + "::" + body.getMethod().getName() + " sets default hostname verifier to known bad verifier " + ref.getClassName());
 					}
 				}
