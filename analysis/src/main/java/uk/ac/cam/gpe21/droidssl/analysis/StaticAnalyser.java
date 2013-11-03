@@ -4,7 +4,6 @@ import soot.*;
 import soot.options.Options;
 
 import java.util.Arrays;
-import java.util.Map;
 
 public final class StaticAnalyser {
 	public static void main(String[] args) {
@@ -44,17 +43,6 @@ public final class StaticAnalyser {
 		jtp.add(new Transform("jtp.jsse_hostname_verifier", new JsseHostnameVerifierTransformer()));
 		jtp.add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer()));
 		jtp.add(new Transform("jtp.default_jsse_hostname_verifier", new DefaultJsseHostnameVerifierTransformer()));
-
-		/*
-		 * Add transforms for the Whole Jimple Transformation Pack.
-		 */
-		Pack wjtp = PackManager.v().getPack("wjtp");
-		wjtp.add(new Transform("wjtp.print_call_graph", new SceneTransformer() {
-			@Override
-			protected void internalTransform(String phase, Map<String, String> options) {
-				System.err.print(Scene.v().getCallGraph());
-			}
-		}));
 
 		/*
 		 * Perform the analysis.
