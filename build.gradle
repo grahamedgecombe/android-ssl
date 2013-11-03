@@ -86,3 +86,21 @@ project(':test-hv') {
 		}
 	}
 }
+
+project(':test-trust') {
+	apply plugin: 'android'
+	apply plugin: 'idea'
+
+	android {
+		compileSdkVersion 18
+		buildToolsVersion '18.1.1'
+	}
+
+	idea {
+		module {
+			sourceDirs += file('src/main/java')
+			testSourceDirs += file('src/instrumentTest/java')
+			jdkName = 'android'
+		}
+	}
+}
