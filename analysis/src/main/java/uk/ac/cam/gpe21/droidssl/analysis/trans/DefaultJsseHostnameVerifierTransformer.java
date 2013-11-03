@@ -9,32 +9,29 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
-import java.util.Map;
 
-public final class DefaultJsseHostnameVerifierTransformer extends BodyTransformer {
-	private final List<Vulnerability> vulnerabilities;
-
+public final class DefaultJsseHostnameVerifierTransformer extends Analyser {
 	public DefaultJsseHostnameVerifierTransformer(List<Vulnerability> vulnerabilities) {
-		this.vulnerabilities = vulnerabilities;
+		super(vulnerabilities);
 	}
 
 	@Override
-	protected void internalTransform(Body body, String phase, Map<String, String> options) {
+	protected void analyse(SootClass clazz, SootMethod method, Body body) {
 		for (Unit unit : body.getUnits()) {
 			if (unit instanceof InvokeStmt) {
 				InvokeStmt stmt = (InvokeStmt) unit;
-				SootMethod method = stmt.getInvokeExpr().getMethod();
+				SootMethod targetMethod = stmt.getInvokeExpr().getMethod();
 
-				if (!method.getDeclaringClass().getType().equals(Types.HTTPS_URL_CONNECTION))
+				if (!targetMethod.getDeclaringClass().getType().equals(Types.HTTPS_URL_CONNECTION))
 					continue;
 
-				if (!method.getName().equals("setDefaultHostnameVerifier"))
+				if (!targetMethod.getName().equals("setDefaultHostnameVerifier"))
 					continue;
 
-				if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.HOSTNAME_VERIFIER))
+				if (!Signatures.methodSignatureMatches(targetMethod, VoidType.v(), Types.HOSTNAME_VERIFIER))
 					continue;
 
-				if (!method.isStatic())
+				if (!targetMethod.isStatic())
 					continue;
 
 				List<ValueBox> list = stmt.getInvokeExpr().getUseBoxes();

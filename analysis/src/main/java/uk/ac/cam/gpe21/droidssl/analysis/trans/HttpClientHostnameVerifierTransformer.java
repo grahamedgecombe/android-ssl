@@ -1,6 +1,9 @@
 package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
-import soot.*;
+import soot.Body;
+import soot.SootClass;
+import soot.SootMethod;
+import soot.VoidType;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
@@ -11,20 +14,14 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
-import java.util.Map;
 
-public final class HttpClientHostnameVerifierTransformer extends BodyTransformer {
-	private final List<Vulnerability> vulnerabilities;
-
+public final class HttpClientHostnameVerifierTransformer extends Analyser {
 	public HttpClientHostnameVerifierTransformer(List<Vulnerability> vulnerabilities) {
-		this.vulnerabilities = vulnerabilities;
+		super(vulnerabilities);
 	}
 
 	@Override
-	protected void internalTransform(Body body, String phase, Map<String, String> options) {
-		SootMethod method = body.getMethod();
-
-		SootClass clazz = method.getDeclaringClass();
+	protected void analyse(SootClass clazz, SootMethod method, Body body) {
 		if (!clazz.getSuperclass().getType().equals(Types.ABSTRACT_VERIFIER))
 			return;
 
