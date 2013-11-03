@@ -31,6 +31,7 @@ public final class DefaultJsseHostnameVerifierTransformer extends BodyTransforme
 
 				PointsToSet set = Scene.v().getPointsToAnalysis().reachingObjects(local);
 				// TODO check if the hostname verifier is a known 'bad' one
+				System.err.println(set.possibleTypes());
 			}
 		}
 	}
