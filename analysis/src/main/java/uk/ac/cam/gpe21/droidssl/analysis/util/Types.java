@@ -14,6 +14,9 @@ public final class Types {
 	public static final RefType SSL_EXCEPTION = RefType.v("javax.net.ssl.SSLException");
 	public static final RefType SSL_SOCKET_FACTORY = RefType.v("javax.net.ssl.SSLSocketFactory");
 	public static final RefType SSL_CERTIFICATE_SOCKET_FACTORY = RefType.v("android.net.SSLCertificateSocketFactory");
+	public static final RefType CERTIFICATE_EXCEPTION = RefType.v("java.security.cert.CertificateException");
+	public static final RefType X509_CERTIFICATE = RefType.v("java.security.cert.X509Certificate");
+	public static final ArrayType X509_CERTIFICATE_ARRAY = ArrayType.v(X509_CERTIFICATE, 1);
 
 	public static final RefType HOSTNAME_VERIFIER = RefType.v("javax.net.ssl.HostnameVerifier");
 	public static final RefType ABSTRACT_VERIFIER = RefType.v("org.apache.http.conn.ssl.AbstractVerifier");

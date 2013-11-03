@@ -50,6 +50,7 @@ public final class StaticAnalyser {
 		jtp.add(new Transform("jtp.jsse_hostname_verifier", new JsseHostnameVerifierTransformer()));
 		jtp.add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer()));
 		jtp.add(new Transform("jtp.default_jsse_hostname_verifier", new DefaultJsseHostnameVerifierTransformer()));
+		jtp.add(new Transform("jtp.x509_trust_manager", new X509TrustManagerTransformer()));
 
 		/*
 		 * Perform the analysis.
