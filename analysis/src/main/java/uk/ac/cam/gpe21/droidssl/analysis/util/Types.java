@@ -12,10 +12,14 @@ public final class Types {
 
 	public static final RefType SSL_SESSION = RefType.v("javax.net.ssl.SSLSession");
 	public static final RefType SSL_EXCEPTION = RefType.v("javax.net.ssl.SSLException");
+	public static final RefType SSL_SOCKET_FACTORY = RefType.v("javax.net.ssl.SSLSocketFactory");
+	public static final RefType SSL_CERTIFICATE_SOCKET_FACTORY = RefType.v("android.net.SSLCertificateSocketFactory");
 
 	public static final RefType HOSTNAME_VERIFIER = RefType.v("javax.net.ssl.HostnameVerifier");
 	public static final RefType ABSTRACT_VERIFIER = RefType.v("org.apache.http.conn.ssl.AbstractVerifier");
 	public static final RefType ALLOW_ALL_HOSTNAME_VERIFIER = RefType.v("org.apache.http.conn.ssl.AllowAllHostnameVerifier");
+
+	public static final RefType APACHE_SSL_SOCKET_FACTORY = RefType.v("org.apache.http.conn.ssl.SSLSocketFactory");
 
 	public static final RefType X509_TRUST_MANAGER = RefType.v("javax.net.ssl.X509TrustManager");
 
