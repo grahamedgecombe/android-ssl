@@ -82,6 +82,7 @@ project(':test-hv') {
 		module {
 			sourceDirs += file('src/main/java')
 			testSourceDirs += file('src/instrumentTest/java')
+			jdkName = 'android'
 		}
 	}
 }
