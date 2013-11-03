@@ -61,6 +61,7 @@ public final class StaticAnalyser {
 		jtp.add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer(vulnerabilities)));
 		jtp.add(new Transform("jtp.default_jsse_hostname_verifier", new DefaultJsseHostnameVerifierTransformer(vulnerabilities)));
 		jtp.add(new Transform("jtp.x509_trust_manager", new X509TrustManagerTransformer(vulnerabilities)));
+		jtp.add(new Transform("jtp.ssl_context", new SslContextAnalyser(vulnerabilities)));
 
 		/*
 		 * Perform the analysis.
