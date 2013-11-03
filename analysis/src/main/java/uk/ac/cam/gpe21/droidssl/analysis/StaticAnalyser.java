@@ -25,6 +25,12 @@ public final class StaticAnalyser {
 		Options.v().set_android_jars("/opt/android/platforms");
 
 		/*
+		 * Allow phantom references as there are some Google-specific APIs not
+		 * included in the Android SDK directory as listed above.
+		 */
+		Options.v().set_allow_phantom_refs(true);
+
+		/*
 		 * Enable the SPARK points-to analysis.
 		 */
 		Options.v().set_whole_program(true);
