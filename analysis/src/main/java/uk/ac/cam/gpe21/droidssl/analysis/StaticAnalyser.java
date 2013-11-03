@@ -8,11 +8,17 @@ import java.util.Arrays;
 
 public final class StaticAnalyser {
 	public static void main(String[] args) {
+		if (args.length != 1) {
+			System.err.println("Usage:");
+			System.err.println("  java -cp ... " + StaticAnalyser.class.getName() + " apkfile");
+			System.exit(1);
+		}
+
 		/*
 		 * Set path to input APK.
 		 */
 		Options.v().set_src_prec(Options.src_prec_apk);
-		Options.v().set_process_dir(Arrays.asList("test-hv/build/apk/test-hv-release-unsigned.apk"));
+		Options.v().set_process_dir(Arrays.asList(args[0]));
 
 		/*
 		 * Prevent Soot from outputting *.jimple files.
