@@ -22,7 +22,10 @@ public final class X509TrustManagerTransformer extends BodyTransformer {
 		if (!clazz.getSuperclass().getType().equals(Types.X509_TRUST_MANAGER))
 			return;
 
-		if (!Signatures.methodSignatureMatches(method, VoidType.v(), "checkServerTrusted", Types.X509_CERTIFICATE_ARRAY, Types.STRING))
+		if (!method.getName().equals("checkServerTrusted"))
+			return;
+
+		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.X509_CERTIFICATE_ARRAY, Types.STRING))
 			return;
 
 		boolean anyExitThrowsException = false;

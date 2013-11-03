@@ -20,7 +20,10 @@ public final class HttpClientHostnameVerifierTransformer extends BodyTransformer
 		if (!clazz.getSuperclass().getType().equals(Types.ABSTRACT_VERIFIER))
 			return;
 
-		if (!Signatures.methodSignatureMatches(method, VoidType.v(), "verify", Types.STRING, Types.STRING_ARRAY, Types.STRING_ARRAY))
+		if (!method.getName().equals("verify"))
+			return;
+
+		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.STRING, Types.STRING_ARRAY, Types.STRING_ARRAY))
 			return;
 
 		boolean anyExitThrowsException = false;

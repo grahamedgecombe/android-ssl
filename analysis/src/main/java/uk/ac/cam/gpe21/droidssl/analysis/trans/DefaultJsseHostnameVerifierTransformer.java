@@ -20,7 +20,10 @@ public final class DefaultJsseHostnameVerifierTransformer extends BodyTransforme
 				if (!method.getDeclaringClass().getType().equals(Types.HTTPS_URL_CONNECTION))
 					continue;
 
-				if (!Signatures.methodSignatureMatches(method, VoidType.v(), "setDefaultHostnameVerifier", Types.HOSTNAME_VERIFIER))
+				if (!method.getName().equals("setDefaultHostnameVerifier"))
+					continue;
+
+				if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.HOSTNAME_VERIFIER))
 					continue;
 
 				if (!method.isStatic())

@@ -20,7 +20,10 @@ public final class JsseHostnameVerifierTransformer extends BodyTransformer {
 		if (!clazz.implementsInterface(Types.HOSTNAME_VERIFIER.getClassName()))
 			return;
 
-		if (!Signatures.methodSignatureMatches(method, BooleanType.v(), "verify", Types.STRING, Types.SSL_SESSION))
+		if (!method.getName().equals("verify"))
+			return;
+
+		if (!Signatures.methodSignatureMatches(method, BooleanType.v(), Types.STRING, Types.SSL_SESSION))
 			return;
 
 		boolean allExitsReturnTrue = true;

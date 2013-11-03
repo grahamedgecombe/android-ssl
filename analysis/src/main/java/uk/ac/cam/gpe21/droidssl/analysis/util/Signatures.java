@@ -4,11 +4,8 @@ import soot.SootMethod;
 import soot.Type;
 
 public final class Signatures {
-	public static boolean methodSignatureMatches(SootMethod method, Type returnType, String name, Type... parameterTypes) {
+	public static boolean methodSignatureMatches(SootMethod method, Type returnType, Type... parameterTypes) {
 		if (!method.getReturnType().equals(returnType))
-			return false;
-
-		if (!method.getName().equals(name))
 			return false;
 
 		if (method.getParameterCount() != parameterTypes.length)
