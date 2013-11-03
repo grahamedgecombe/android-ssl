@@ -1,10 +1,11 @@
-package uk.ac.cam.gpe21.droidssl.analysis;
+package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
 import soot.toolkits.exceptions.ThrowableSet;
 import soot.toolkits.exceptions.UnitThrowAnalysis;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
+import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 

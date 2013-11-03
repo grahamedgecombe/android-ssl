@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.analysis;
+package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;

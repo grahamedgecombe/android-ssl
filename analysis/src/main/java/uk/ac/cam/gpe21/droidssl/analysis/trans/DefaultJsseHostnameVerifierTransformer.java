@@ -1,7 +1,8 @@
-package uk.ac.cam.gpe21.droidssl.analysis;
+package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
 import soot.jimple.InvokeStmt;
+import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 

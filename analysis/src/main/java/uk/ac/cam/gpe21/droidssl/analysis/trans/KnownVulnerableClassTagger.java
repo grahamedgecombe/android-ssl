@@ -1,8 +1,9 @@
-package uk.ac.cam.gpe21.droidssl.analysis;
+package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
+import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.Map;

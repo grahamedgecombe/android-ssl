@@ -2,6 +2,7 @@ package uk.ac.cam.gpe21.droidssl.analysis;
 
 import soot.*;
 import soot.options.Options;
+import uk.ac.cam.gpe21.droidssl.analysis.trans.*;
 
 import java.util.Arrays;
 
