@@ -1,11 +1,10 @@
 package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
-import soot.jimple.IntConstant;
-import soot.jimple.ReturnStmt;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
+import uk.ac.cam.gpe21.droidssl.analysis.util.FlowGraphUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
@@ -26,19 +25,8 @@ public final class JsseHostnameVerifierTransformer extends BodyTransformer {
 		if (!Signatures.methodSignatureMatches(method, BooleanType.v(), Types.STRING, Types.SSL_SESSION))
 			return;
 
-		boolean allExitsReturnTrue = true;
-
 		UnitGraph graph = new BriefUnitGraph(body);
-		for (Unit unit : graph.getTails()) {
-			if (unit instanceof ReturnStmt) {
-				ReturnStmt stmt = (ReturnStmt) unit;
-				if (!stmt.getOp().equals(IntConstant.v(1))) {
-					allExitsReturnTrue = false;
-				}
-			}
-		}
-
-		if (allExitsReturnTrue) {
+		if (FlowGraphUtils.allExitsReturnTrue(graph)) {
 			clazz.addTag(new VulnerabilityTag());
 			System.err.println("HostnameVerifier " + clazz.getName() + " always returns true");
 		}
