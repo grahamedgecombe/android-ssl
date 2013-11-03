@@ -18,7 +18,7 @@ public final class X509TrustManagerTransformer extends BodyTransformer {
 		SootMethod method = body.getMethod();
 
 		SootClass clazz = method.getDeclaringClass();
-		if (!clazz.getSuperclass().getType().equals(Types.X509_TRUST_MANAGER))
+		if (!clazz.implementsInterface(Types.X509_TRUST_MANAGER.getClassName()))
 			return;
 
 		if (!method.getName().equals("checkServerTrusted"))
