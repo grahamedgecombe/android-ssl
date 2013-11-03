@@ -35,6 +35,7 @@ public final class StaticAnalyser {
 		 */
 		Pack wjpp = PackManager.v().getPack("wjpp");
 		wjpp.add(new Transform("wjpp.activity_entry_transformer", new ActivityEntryTransformer()));
+		wjpp.add(new Transform("wjpp.known_vulnerable_class_tagger", new KnownVulnerableClassTagger()));
 
 		/*
 		 * Add transforms to the Jimple Transformation Pack.

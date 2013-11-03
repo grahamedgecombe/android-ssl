@@ -15,6 +15,7 @@ public final class Types {
 
 	public static final RefType HOSTNAME_VERIFIER = RefType.v("javax.net.ssl.HostnameVerifier");
 	public static final RefType ABSTRACT_VERIFIER = RefType.v("org.apache.http.conn.ssl.AbstractVerifier");
+	public static final RefType ALLOW_ALL_HOSTNAME_VERIFIER = RefType.v("org.apache.http.conn.ssl.AllowAllHostnameVerifier");
 
 	public static final RefType X509_TRUST_MANAGER = RefType.v("javax.net.ssl.X509TrustManager");
 

@@ -26,12 +26,25 @@ public final class DefaultJsseHostnameVerifierTransformer extends BodyTransforme
 					continue;
 
 				List<ValueBox> list = stmt.getInvokeExpr().getUseBoxes();
-				// TODO check list size==1 & element is instanceof Local
-				Local local = (Local) list.get(0).getValue();
+				if (list.size() != 1)
+					continue; /* TODO could this ever happen? */
+
+				Value value = list.get(0).getValue();
+				if (!(value instanceof Local))
+					continue; /* TODO could this ever happen? */
+
+				Local local = (Local) value;
 
 				PointsToSet set = Scene.v().getPointsToAnalysis().reachingObjects(local);
-				// TODO check if the hostname verifier is a known 'bad' one
-				System.err.println(set.possibleTypes());
+				for (Type type : set.possibleTypes()) {
+					if (!(type instanceof RefType))
+						continue;
+
+					RefType ref = (RefType) type;
+					if (ref.getSootClass().getTag(VulnerabilityTag.NAME) != null) {
+						System.err.println("Method " + body.getMethod().getDeclaringClass().getName() + "::" + body.getMethod().getName() + " sets default hostname verifier to known bad verifier " + ref.getClassName());
+					}
+				}
 			}
 		}
 	}

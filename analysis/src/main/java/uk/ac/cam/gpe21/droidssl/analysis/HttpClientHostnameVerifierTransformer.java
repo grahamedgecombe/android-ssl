@@ -33,6 +33,7 @@ public final class HttpClientHostnameVerifierTransformer extends BodyTransformer
 		}
 
 		if (!anyExitThrowsException) {
+			clazz.addTag(new VulnerabilityTag());
 			System.err.println("AbstractVerifier " + clazz.getName() + " never throws SSLException");
 		}
 	}

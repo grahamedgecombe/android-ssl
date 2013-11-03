@@ -35,6 +35,7 @@ public final class JsseHostnameVerifierTransformer extends BodyTransformer {
 		}
 
 		if (allExitsReturnTrue) {
+			clazz.addTag(new VulnerabilityTag());
 			System.err.println("HostnameVerifier " + clazz.getName() + " always returns true");
 		}
 	}
