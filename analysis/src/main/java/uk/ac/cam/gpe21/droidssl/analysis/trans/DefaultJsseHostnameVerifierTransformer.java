@@ -2,6 +2,8 @@ package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
 import soot.jimple.InvokeStmt;
+import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
+import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
 import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
@@ -10,6 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 public final class DefaultJsseHostnameVerifierTransformer extends BodyTransformer {
+	private final List<Vulnerability> vulnerabilities;
+
+	public DefaultJsseHostnameVerifierTransformer(List<Vulnerability> vulnerabilities) {
+		this.vulnerabilities = vulnerabilities;
+	}
+
 	@Override
 	protected void internalTransform(Body body, String phase, Map<String, String> options) {
 		for (Unit unit : body.getUnits()) {
@@ -46,7 +54,7 @@ public final class DefaultJsseHostnameVerifierTransformer extends BodyTransforme
 
 					RefType ref = (RefType) type;
 					if (ref.getSootClass().hasTag(VulnerabilityTag.NAME)) {
-						System.err.println("Method " + body.getMethod().getDeclaringClass().getName() + "::" + body.getMethod().getName() + " sets default hostname verifier to known bad verifier " + ref.getClassName());
+						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER));
 					}
 				}
 			}

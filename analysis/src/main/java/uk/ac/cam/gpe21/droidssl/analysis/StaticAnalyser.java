@@ -4,7 +4,9 @@ import soot.*;
 import soot.options.Options;
 import uk.ac.cam.gpe21.droidssl.analysis.trans.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class StaticAnalyser {
 	public static void main(String[] args) {
@@ -42,6 +44,8 @@ public final class StaticAnalyser {
 		Options.v().set_whole_program(true);
 		PhaseOptions.v().processPhaseOptions("cg.spark", "enabled:true");
 
+		List<Vulnerability> vulnerabilities = new ArrayList<>();
+
 		/*
 		 * Add transforms to the Whole Jimple Pre-processing Pack.
 		 */
@@ -53,15 +57,23 @@ public final class StaticAnalyser {
 		 * Add transforms to the Jimple Transformation Pack.
 		 */
 		Pack jtp = PackManager.v().getPack("jtp");
-		jtp.add(new Transform("jtp.jsse_hostname_verifier", new JsseHostnameVerifierTransformer()));
-		jtp.add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer()));
-		jtp.add(new Transform("jtp.default_jsse_hostname_verifier", new DefaultJsseHostnameVerifierTransformer()));
-		jtp.add(new Transform("jtp.x509_trust_manager", new X509TrustManagerTransformer()));
+		jtp.add(new Transform("jtp.jsse_hostname_verifier", new JsseHostnameVerifierTransformer(vulnerabilities)));
+		jtp.add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer(vulnerabilities)));
+		jtp.add(new Transform("jtp.default_jsse_hostname_verifier", new DefaultJsseHostnameVerifierTransformer(vulnerabilities)));
+		jtp.add(new Transform("jtp.x509_trust_manager", new X509TrustManagerTransformer(vulnerabilities)));
 
 		/*
 		 * Perform the analysis.
 		 */
 		Scene.v().loadNecessaryClasses();
 		PackManager.v().runPacks();
+
+		/*
+		 * Print out the list of vulnerabilities.
+		 */
+		System.err.println(vulnerabilities.size() + " vulnerabilities found:");
+		for (Vulnerability vulnerability : vulnerabilities) {
+			System.err.println("  " + vulnerability.toString());
+		}
 	}
 }
