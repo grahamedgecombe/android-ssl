@@ -25,7 +25,7 @@ public final class FlowGraphUtils {
 			if (unit instanceof ReturnStmt) {
 				ReturnStmt stmt = (ReturnStmt) unit;
 				if (!stmt.getOp().equals(IntConstant.v(1))) {
-					return true;
+					return false;
 				}
 			}
 		}
