@@ -50,18 +50,18 @@ public final class StaticAnalyser {
 		 * Add transforms to the Whole Jimple Pre-processing Pack.
 		 */
 		Pack wjpp = PackManager.v().getPack("wjpp");
-		wjpp.add(new Transform("wjpp.activity_entry_transformer", new ActivityEntryTransformer()));
+		wjpp.add(new Transform("wjpp.activity_entry_transformer",    new ActivityEntryTransformer()));
 		wjpp.add(new Transform("wjpp.known_vulnerable_class_tagger", new KnownVulnerableClassTagger()));
 
 		/*
 		 * Add transforms to the Jimple Transformation Pack.
 		 */
 		Pack jtp = PackManager.v().getPack("jtp");
-		jtp.add(new Transform("jtp.jsse_hostname_verifier", new JsseHostnameVerifierTransformer(vulnerabilities)));
-		jtp.add(new Transform("jtp.httpclient_hostname_verifier", new HttpClientHostnameVerifierTransformer(vulnerabilities)));
-		jtp.add(new Transform("jtp.default_jsse_hostname_verifier", new DefaultJsseHostnameVerifierTransformer(vulnerabilities)));
-		jtp.add(new Transform("jtp.x509_trust_manager", new X509TrustManagerTransformer(vulnerabilities)));
-		jtp.add(new Transform("jtp.ssl_context", new SslContextAnalyser(vulnerabilities)));
+		jtp.add(new Transform("jtp.hostname_verifier",         new HostnameVerifierAnalyser(vulnerabilities)));
+		jtp.add(new Transform("jtp.abstract_verifier",         new AbstractVerifierAnalyser(vulnerabilities)));
+		jtp.add(new Transform("jtp.default_hostname_verifier", new DefaultHostnameVerifierAnalyser(vulnerabilities)));
+		jtp.add(new Transform("jtp.trust_manager",             new TrustManagerAnalyser(vulnerabilities)));
+		jtp.add(new Transform("jtp.ssl_context",               new SslContextAnalyser(vulnerabilities)));
 
 		/*
 		 * Perform the analysis.

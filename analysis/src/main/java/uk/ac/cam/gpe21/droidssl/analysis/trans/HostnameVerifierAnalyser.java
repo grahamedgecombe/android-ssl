@@ -15,8 +15,8 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
 
-public final class JsseHostnameVerifierTransformer extends Analyser {
-	public JsseHostnameVerifierTransformer(List<Vulnerability> vulnerabilities) {
+public final class HostnameVerifierAnalyser extends Analyser {
+	public HostnameVerifierAnalyser(List<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 

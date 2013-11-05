@@ -15,26 +15,27 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
 
-public final class HttpClientHostnameVerifierTransformer extends Analyser {
-	public HttpClientHostnameVerifierTransformer(List<Vulnerability> vulnerabilities) {
+public final class TrustManagerAnalyser extends Analyser {
+	public TrustManagerAnalyser(List<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 
+	// TODO consider what to do with the getAcceptedIssuers/checkClientTrusted methods?
 	@Override
 	protected void analyse(SootClass clazz, SootMethod method, Body body) {
-		if (!clazz.getSuperclass().getType().equals(Types.ABSTRACT_VERIFIER))
+		if (!clazz.implementsInterface(Types.X509_TRUST_MANAGER.getClassName()))
 			return;
 
-		if (!method.getName().equals("verify"))
+		if (!method.getName().equals("checkServerTrusted"))
 			return;
 
-		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.STRING, Types.STRING_ARRAY, Types.STRING_ARRAY))
+		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.X509_CERTIFICATE_ARRAY, Types.STRING))
 			return;
 
 		UnitGraph graph = new ExceptionalUnitGraph(body);
-		if (!FlowGraphUtils.anyExitThrowsException(graph, Types.SSL_EXCEPTION)) {
+		if (!FlowGraphUtils.anyExitThrowsException(graph, Types.CERTIFICATE_EXCEPTION)) {
 			clazz.addTag(new VulnerabilityTag());
-			vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER));
+			vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_TRUST_MANAGER));
 		}
 	}
 }
