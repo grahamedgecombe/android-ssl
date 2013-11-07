@@ -53,8 +53,7 @@ public final class SslContextFlowAnalysis extends ForwardFlowAnalysis<Unit, Flow
 
 				if (left instanceof Local) {
 					Local left0 = (Local) left;
-					if (out.contains(left0))
-						out.remove(left0);
+					out.remove(left0);
 
 					if (right instanceof Local) {
 						Local right0 = (Local) right;
