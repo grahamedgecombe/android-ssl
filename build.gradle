@@ -57,6 +57,19 @@ project(':analysis') {
 	}
 }
 
+project(':soot-tests') {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.11'
+		compile name: 'soot', version: '20131031'
+	}
+}
+
 project(':apkdl') {
 	apply plugin: 'java'
 	apply plugin: 'idea'
