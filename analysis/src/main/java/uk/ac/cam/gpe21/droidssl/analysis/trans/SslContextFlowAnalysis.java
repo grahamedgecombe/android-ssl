@@ -5,25 +5,25 @@ import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.AssignStmt;
 import soot.jimple.InvokeStmt;
 import soot.toolkits.graph.UnitGraph;
+import soot.toolkits.scalar.ArraySparseSet;
+import soot.toolkits.scalar.FlowSet;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public final class SslContextFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Local>> {
+public final class SslContextFlowAnalysis extends ForwardFlowAnalysis<Unit, FlowSet> {
 	public SslContextFlowAnalysis(UnitGraph graph) {
 		super(graph);
 		doAnalysis();
 	}
 
 	@Override
-	protected void flowThrough(final Set<Local> in, Unit node, final Set<Local> out) {
+	protected void flowThrough(final FlowSet in, Unit node, final FlowSet out) {
 		node.apply(new AbstractStmtSwitch() {
 			@Override
 			public void caseInvokeStmt(InvokeStmt stmt) {
-				out.addAll(in);
+				in.copy(out);
 
 				SootMethod targetMethod = stmt.getInvokeExpr().getMethod();
 				if (!targetMethod.getDeclaringClass().getType().equals(Types.SSL_CONTEXT))
@@ -46,7 +46,7 @@ public final class SslContextFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<
 
 			@Override
 			public void caseAssignStmt(AssignStmt stmt) {
-				out.addAll(in);
+				in.copy(out);
 
 				Value left = stmt.getLeftOp();
 				Value right = stmt.getRightOp();
@@ -66,29 +66,28 @@ public final class SslContextFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<
 
 			@Override
 			public void defaultCase(Object obj) {
-				out.addAll(in);
+				in.copy(out);
 			}
 		});
 	}
 
 	@Override
-	protected Set<Local> newInitialFlow() {
-		return new HashSet<>(); // TODO use FlowSet
+	protected FlowSet newInitialFlow() {
+		return new ArraySparseSet();
 	}
 
 	@Override
-	protected Set<Local> entryInitialFlow() {
-		return new HashSet<>();
+	protected FlowSet entryInitialFlow() {
+		return new ArraySparseSet();
 	}
 
 	@Override
-	protected void merge(Set<Local> in1, Set<Local> in2, Set<Local> out) {
-		out.addAll(in1);
-		out.addAll(in2);
+	protected void merge(FlowSet in1, FlowSet in2, FlowSet out) {
+		in1.union(in2, out);
 	}
 
 	@Override
-	protected void copy(Set<Local> source, Set<Local> dest) {
-		dest.addAll(source);
+	protected void copy(FlowSet source, FlowSet dest) {
+		source.copy(dest);
 	}
 }
