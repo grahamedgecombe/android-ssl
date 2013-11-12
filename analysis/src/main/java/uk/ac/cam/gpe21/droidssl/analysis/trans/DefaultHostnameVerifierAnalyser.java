@@ -1,6 +1,7 @@
 package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
+import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
@@ -34,13 +35,10 @@ public final class DefaultHostnameVerifierAnalyser extends Analyser {
 				if (!targetMethod.isStatic())
 					continue;
 
-				List<ValueBox> list = stmt.getInvokeExpr().getUseBoxes();
-				if (list.size() != 1)
-					continue; /* TODO could this ever happen? */
-
-				Value value = list.get(0).getValue();
+				InvokeExpr expr = stmt.getInvokeExpr(); // TODO sanity checking?
+				Value value = expr.getArg(0);
 				if (!(value instanceof Local))
-					continue; /* TODO could this ever happen? */
+					continue; // TODO e.g. could be a field ref? does soot support points-to in this case?
 
 				Local local = (Local) value;
 
@@ -51,7 +49,7 @@ public final class DefaultHostnameVerifierAnalyser extends Analyser {
 
 					RefType ref = (RefType) type;
 					if (ref.getSootClass().hasTag(VulnerabilityTag.NAME)) {
-						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER));
+						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.DEFAULT_HTTPS_HOSTNAME_VERIFIER));
 					}
 				}
 			}
