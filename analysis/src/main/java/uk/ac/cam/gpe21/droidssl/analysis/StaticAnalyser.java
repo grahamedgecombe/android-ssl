@@ -70,6 +70,15 @@ public final class StaticAnalyser {
 		PackManager.v().runPacks();
 
 		/*
+		 * TODO: temporary fix - the JTP transforms are executed for each
+		 * method, and then for each transform, however, we really need this to
+		 * be the other way around so that classes identified as being bad in
+		 * earlier transforms (e.g. hostname_verifier) can be made use of in
+		 * later transforms (e.g. ssl_context).
+		 */
+		PackManager.v().runPacks();
+
+		/*
 		 * Print out the list of vulnerabilities.
 		 */
 		System.err.println(vulnerabilities.size() + " vulnerabilities found:");

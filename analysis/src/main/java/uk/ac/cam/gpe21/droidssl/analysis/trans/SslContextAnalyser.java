@@ -1,11 +1,12 @@
 package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
-import soot.Body;
-import soot.SootClass;
-import soot.SootMethod;
+import soot.*;
+import soot.jimple.*;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
+import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
+import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
 
@@ -15,13 +16,38 @@ public final class SslContextAnalyser extends Analyser {
 	}
 
 	@Override
-	protected void analyse(SootClass clazz, SootMethod method, Body body) {
-		if (!method.getName().equals("connect"))
-			return;
-
+	protected void analyse(SootClass clazz, final SootMethod method, Body body) {
 		UnitGraph graph = new BriefUnitGraph(body);
-		SslContextFlowAnalysis analysis = new SslContextFlowAnalysis(graph);
+		final TrustManagerFlowAnalysis analysis = new TrustManagerFlowAnalysis(graph);
 
-		// TODO finish
+		for (Unit unit : graph) {
+			unit.apply(new AbstractStmtSwitch() {
+				@Override
+				public void caseAssignStmt(AssignStmt stmt) {
+					// TODO complete
+				}
+
+				@Override
+				public void caseInvokeStmt(InvokeStmt stmt) {
+					InvokeExpr expr = stmt.getInvokeExpr();
+					if (!(expr instanceof InstanceInvokeExpr))
+						return;
+
+					InstanceInvokeExpr instanceExpr = (InstanceInvokeExpr) expr;
+
+					SootMethod targetMethod = stmt.getInvokeExpr().getMethod();
+
+					RefType clazz = targetMethod.getDeclaringClass().getType();
+					String targetName = targetMethod.getName();
+
+					// TODO deal with the fact it could also be SSL_SOCKET_FACTORY
+					if (clazz.equals(Types.SOCKET_FACTORY) && targetName.equals("createSocket")) {
+						if (analysis.getFlowBefore(stmt).contains(instanceExpr.getBase())) {
+							vulnerabilities.add(new Vulnerability(method, VulnerabilityType.SOCKET_USES_PERMISSIVE_TRUST_MANAGER));
+						}
+					}
+				}
+			});
+		}
 	}
 }

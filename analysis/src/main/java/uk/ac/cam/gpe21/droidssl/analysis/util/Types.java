@@ -10,9 +10,13 @@ public final class Types {
 	public static final RefType ACTIVITY = RefType.v("android.app.Activity");
 	public static final RefType VIEW = RefType.v("android.view.View");
 
+	public static final RefType SOCKET = RefType.v("java.net.Socket");
+	public static final RefType SOCKET_FACTORY = RefType.v("javax.net.SocketFactory");
+
 	public static final RefType SSL_CONTEXT = RefType.v("javax.net.ssl.SSLContext");
 	public static final RefType SSL_SESSION = RefType.v("javax.net.ssl.SSLSession");
 	public static final RefType SSL_EXCEPTION = RefType.v("javax.net.ssl.SSLException");
+	public static final RefType SSL_SOCKET = RefType.v("javax.net.ssl.SSLSocket");
 	public static final RefType SSL_SOCKET_FACTORY = RefType.v("javax.net.ssl.SSLSocketFactory");
 	public static final RefType SSL_CERTIFICATE_SOCKET_FACTORY = RefType.v("android.net.SSLCertificateSocketFactory");
 	public static final RefType CERTIFICATE_EXCEPTION = RefType.v("java.security.cert.CertificateException");
