@@ -33,9 +33,12 @@ public final class StaticAnalyser {
 		Options.v().set_output_format(Options.output_format_none);
 
 		/*
-		 * Set the path to the Android SDK.
+		 * Set the path to the Android SDK. Whilst Soot contains code to try to
+		 * detect the target SDK version, some applications use methods only
+		 * present in the newer SDK, causing SPARK to crash. Therefore we force
+		 * the use of the latest version of the Android SDK (4.3).
 		 */
-		Options.v().set_android_jars("/opt/android/platforms");
+		Options.v().set_force_android_jar("/opt/android/platforms/android-18/android.jar");
 
 		/*
 		 * Allow phantom references as there are some Google-specific APIs not
