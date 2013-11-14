@@ -26,10 +26,7 @@ public final class HostnameVerifierAnalyser extends IntraProceduralAnalyser {
 		if (!clazz.implementsInterface(Types.HOSTNAME_VERIFIER.getClassName()))
 			return;
 
-		if (!method.getName().equals("verify"))
-			return;
-
-		if (!Signatures.methodSignatureMatches(method, BooleanType.v(), Types.STRING, Types.SSL_SESSION))
+		if (!Signatures.methodSignatureMatches(method, BooleanType.v(), "verify", Types.STRING, Types.SSL_SESSION))
 			return;
 
 		VulnerabilityState state = VulnerabilityState.UNKNOWN;

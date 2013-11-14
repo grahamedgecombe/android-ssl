@@ -27,10 +27,7 @@ public final class TrustManagerAnalyser extends IntraProceduralAnalyser {
 		if (!clazz.implementsInterface(Types.X509_TRUST_MANAGER.getClassName()))
 			return;
 
-		if (!method.getName().equals("checkServerTrusted"))
-			return;
-
-		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.X509_CERTIFICATE_ARRAY, Types.STRING))
+		if (!Signatures.methodSignatureMatches(method, VoidType.v(), "checkServerTrusted", Types.X509_CERTIFICATE_ARRAY, Types.STRING))
 			return;
 
 		VulnerabilityState state = VulnerabilityState.UNKNOWN;

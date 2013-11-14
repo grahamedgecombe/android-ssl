@@ -1,6 +1,8 @@
 package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
-import soot.*;
+import soot.Scene;
+import soot.SceneTransformer;
+import soot.SootClass;
 
 import java.util.Map;
 

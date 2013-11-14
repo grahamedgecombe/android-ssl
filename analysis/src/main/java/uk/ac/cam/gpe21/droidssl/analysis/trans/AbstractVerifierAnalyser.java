@@ -26,10 +26,7 @@ public final class AbstractVerifierAnalyser extends IntraProceduralAnalyser {
 		if (!clazz.getSuperclass().getType().equals(Types.ABSTRACT_VERIFIER))
 			return;
 
-		if (!method.getName().equals("verify"))
-			return;
-
-		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.STRING, Types.STRING_ARRAY, Types.STRING_ARRAY))
+		if (!Signatures.methodSignatureMatches(method, VoidType.v(), "verify", Types.STRING, Types.STRING_ARRAY, Types.STRING_ARRAY))
 			return;
 
 		VulnerabilityState state = VulnerabilityState.UNKNOWN;

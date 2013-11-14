@@ -24,16 +24,7 @@ public final class DefaultHostnameVerifierAnalyser extends IntraProceduralAnalys
 				InvokeStmt stmt = (InvokeStmt) unit;
 				SootMethod targetMethod = stmt.getInvokeExpr().getMethod();
 
-				if (!targetMethod.getDeclaringClass().getType().equals(Types.HTTPS_URL_CONNECTION))
-					continue;
-
-				if (!targetMethod.getName().equals("setDefaultHostnameVerifier"))
-					continue;
-
-				if (!Signatures.methodSignatureMatches(targetMethod, VoidType.v(), Types.HOSTNAME_VERIFIER))
-					continue;
-
-				if (!targetMethod.isStatic())
+				if (!Signatures.methodSignatureMatches(targetMethod, Types.HTTPS_URL_CONNECTION, VoidType.v(), "setDefaultHostnameVerifier", Types.HOSTNAME_VERIFIER))
 					continue;
 
 				InvokeExpr expr = stmt.getInvokeExpr(); // TODO sanity checking?

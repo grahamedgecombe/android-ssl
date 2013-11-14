@@ -8,6 +8,7 @@ import soot.toolkits.scalar.FlowSet;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
 import uk.ac.cam.gpe21.droidssl.analysis.tag.TrustManagerTag;
+import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, FlowSet> {
@@ -38,7 +39,7 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 				String method = targetMethod.getName();
 
 				// TODO check the entire method signature
-				if (clazz.equals(Types.SSL_CONTEXT) && method.equals("init")) {
+				if (Signatures.methodSignatureMatches(targetMethod, Types.SSL_CONTEXT, VoidType.v(), "init", Types.KEY_MANAGER_ARRAY, Types.TRUST_MANAGER_ARRAY, Types.SECURE_RANDOM)) {
 					Value context = instanceExpr.getBase();
 					Value trustManagerArray = instanceExpr.getArg(1);
 

@@ -23,13 +23,20 @@ public final class Types {
 	public static final RefType X509_CERTIFICATE = RefType.v("java.security.cert.X509Certificate");
 	public static final ArrayType X509_CERTIFICATE_ARRAY = ArrayType.v(X509_CERTIFICATE, 1);
 
+	public static final RefType SECURE_RANDOM = RefType.v("java.security.SecureRandom");
+
 	public static final RefType HOSTNAME_VERIFIER = RefType.v("javax.net.ssl.HostnameVerifier");
 	public static final RefType ABSTRACT_VERIFIER = RefType.v("org.apache.http.conn.ssl.AbstractVerifier");
 	public static final RefType ALLOW_ALL_HOSTNAME_VERIFIER = RefType.v("org.apache.http.conn.ssl.AllowAllHostnameVerifier");
 
 	public static final RefType APACHE_SSL_SOCKET_FACTORY = RefType.v("org.apache.http.conn.ssl.SSLSocketFactory");
 
+	public static final RefType TRUST_MANAGER = RefType.v("javax.net.ssl.TrustManager");
+	public static final ArrayType TRUST_MANAGER_ARRAY = ArrayType.v(TRUST_MANAGER, 1);
 	public static final RefType X509_TRUST_MANAGER = RefType.v("javax.net.ssl.X509TrustManager");
+
+	public static final RefType KEY_MANAGER = RefType.v("javax.net.ssl.KeyManager");
+	public static final ArrayType KEY_MANAGER_ARRAY = ArrayType.v(KEY_MANAGER, 1);
 
 	public static final RefType HTTPS_URL_CONNECTION = RefType.v("javax.net.ssl.HttpsURLConnection");
 

@@ -8,6 +8,7 @@ import soot.jimple.InvokeStmt;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
 import uk.ac.cam.gpe21.droidssl.analysis.tag.HostnameVerifierTag;
+import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
@@ -31,10 +32,9 @@ public final class HttpsUrlConnectionAnalyser extends IntraProceduralAnalyser {
 
 					SootMethod targetMethod = instanceExpr.getMethod();
 					SootClass targetClass = targetMethod.getDeclaringClass();
-					if (!targetClass.getType().equals(Types.HTTPS_URL_CONNECTION)) // TODO what if this is HTTP_URL_CONNECTION?
-						return;
 
-					if (!targetMethod.getName().equals("setHostnameVerifier"))
+					// TODO what if it is casted to HTTP_URL_CONNECTION?
+					if (!Signatures.methodSignatureMatches(targetMethod, Types.HTTPS_URL_CONNECTION, VoidType.v(), "setHostnameVerifier", Types.HOSTNAME_VERIFIER))
 						return;
 
 					// TODO check arg count?
