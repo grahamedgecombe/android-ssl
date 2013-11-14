@@ -1,12 +1,14 @@
 package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
+import soot.jimple.AbstractStmtSwitch;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
 import uk.ac.cam.gpe21.droidssl.analysis.tag.HostnameVerifierTag;
+import uk.ac.cam.gpe21.droidssl.analysis.util.PointsToUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
@@ -18,38 +20,35 @@ public final class DefaultHostnameVerifierAnalyser extends IntraProceduralAnalys
 	}
 
 	@Override
-	protected void analyse(SootClass clazz, SootMethod method, Body body) {
+	protected void analyse(SootClass clazz, final SootMethod method, Body body) {
 		for (Unit unit : body.getUnits()) {
-			if (unit instanceof InvokeStmt) {
-				InvokeStmt stmt = (InvokeStmt) unit;
-				SootMethod targetMethod = stmt.getInvokeExpr().getMethod();
+			unit.apply(new AbstractStmtSwitch() {
+				@Override
+				public void caseInvokeStmt(InvokeStmt stmt) {
+					InvokeExpr expr = stmt.getInvokeExpr();
+					SootMethod targetMethod = expr.getMethod();
 
-				if (!Signatures.methodSignatureMatches(targetMethod, Types.HTTPS_URL_CONNECTION, VoidType.v(), "setDefaultHostnameVerifier", Types.HOSTNAME_VERIFIER))
-					continue;
+					if (!Signatures.methodSignatureMatches(targetMethod, Types.HTTPS_URL_CONNECTION, VoidType.v(), "setDefaultHostnameVerifier", Types.HOSTNAME_VERIFIER))
+						return;
 
-				InvokeExpr expr = stmt.getInvokeExpr(); // TODO sanity checking?
-				Value value = expr.getArg(0);
-				if (!(value instanceof Local))
-					continue; // TODO e.g. could be a field ref? does soot support points-to in this case?
+					Value value = expr.getArg(0);
+					if (!(value instanceof Local))
+						return; // TODO e.g. could be a field ref? does soot support points-to in this case?
 
-				Local local = (Local) value;
+					VulnerabilityState state = VulnerabilityState.UNKNOWN;
 
-				PointsToSet set = Scene.v().getPointsToAnalysis().reachingObjects(local);
-				for (Type type : set.possibleTypes()) {
-					if (!(type instanceof RefType))
-						continue;
-
-					RefType ref = (RefType) type;
-
-					// TODO this is rather convoluted
-					if (ref.getSootClass().hasTag(HostnameVerifierTag.NAME)) {
-						HostnameVerifierTag tag = (HostnameVerifierTag) ref.getSootClass().getTag(HostnameVerifierTag.NAME);
-						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.HTTPS_CONNECTION_DEFAULT_TRUST_MANAGER, tag.getState()));
-					} else {
-						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.HTTPS_CONNECTION_DEFAULT_TRUST_MANAGER, VulnerabilityState.UNKNOWN));
+					PointsToSet set = Scene.v().getPointsToAnalysis().reachingObjects((Local) value);
+					if (!set.isEmpty()) {
+						if (PointsToUtils.anyTypeVulnerable(set, HostnameVerifierTag.NAME)) {
+							state = VulnerabilityState.VULNERABLE;
+						} else if (PointsToUtils.allTypesSafe(set, HostnameVerifierTag.NAME)) {
+							state = VulnerabilityState.SAFE;
+						}
 					}
+
+					vulnerabilities.add(new Vulnerability(method, VulnerabilityType.HTTPS_CONNECTION_DEFAULT_HOSTNAME_VERIFIER, state));
 				}
-			}
+			});
 		}
 	}
 }

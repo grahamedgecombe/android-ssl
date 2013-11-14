@@ -2,12 +2,13 @@ package uk.ac.cam.gpe21.droidssl.analysis.trans;
 
 import soot.*;
 import soot.jimple.AbstractStmtSwitch;
-import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
+import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
 import uk.ac.cam.gpe21.droidssl.analysis.tag.HostnameVerifierTag;
+import uk.ac.cam.gpe21.droidssl.analysis.util.PointsToUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
@@ -25,36 +26,28 @@ public final class HttpsUrlConnectionAnalyser extends IntraProceduralAnalyser {
 				@Override
 				public void caseInvokeStmt(InvokeStmt stmt) {
 					InvokeExpr expr = stmt.getInvokeExpr();
-					if (!(expr instanceof InstanceInvokeExpr))
-						return;
-
-					InstanceInvokeExpr instanceExpr = (InstanceInvokeExpr) expr;
-
-					SootMethod targetMethod = instanceExpr.getMethod();
-					SootClass targetClass = targetMethod.getDeclaringClass();
+					SootMethod targetMethod = expr.getMethod();
 
 					// TODO what if it is casted to HTTP_URL_CONNECTION?
 					if (!Signatures.methodSignatureMatches(targetMethod, Types.HTTPS_URL_CONNECTION, VoidType.v(), "setHostnameVerifier", Types.HOSTNAME_VERIFIER))
 						return;
 
-					// TODO check arg count?
-					Value value = instanceExpr.getArg(0);
+					Value value = expr.getArg(0);
 					if (!(value instanceof Local))
-						return; // TODO is this always the case?
+						return;
+
+					VulnerabilityState state = VulnerabilityState.UNKNOWN;
 
 					PointsToSet set = Scene.v().getPointsToAnalysis().reachingObjects((Local) value);
-
-					for (Type type : set.possibleTypes()) {
-						if (!(type instanceof RefType))
-							continue; // TODO is this always (not) the case?
-
-						// TODO again, rather convoluted and needs reworking (e.g. what if there is a VULNERABLE _and_ a SAFE HV?)
-						RefType ref = (RefType) type;
-						if (ref.getSootClass().hasTag(HostnameVerifierTag.NAME)) {
-							HostnameVerifierTag tag = (HostnameVerifierTag) ref.getSootClass().getTag(HostnameVerifierTag.NAME);
-							vulnerabilities.add(new Vulnerability(method, VulnerabilityType.HTTPS_CONNECTION_USES_TRUST_MANAGER, tag.getState()));
+					if (!set.isEmpty()) {
+						if (PointsToUtils.anyTypeVulnerable(set, HostnameVerifierTag.NAME)) {
+							state = VulnerabilityState.VULNERABLE;
+						} else if (PointsToUtils.allTypesSafe(set, HostnameVerifierTag.NAME)) {
+							state = VulnerabilityState.SAFE;
 						}
 					}
+
+					vulnerabilities.add(new Vulnerability(method, VulnerabilityType.HTTPS_CONNECTION_USES_HOSTNAME_VERIFIER, state));
 				}
 			});
 		}

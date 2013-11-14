@@ -62,7 +62,7 @@ public final class StaticAnalyser {
 		 */
 		AnalysisTransformer transformer = new AnalysisTransformer(
 			/* find vulnerable HostnameVerifiers */
-			new KnownVulnerableClassAnalyser(vulnerabilities),
+			new KnownHostnameVerifierAnalyser(vulnerabilities),
 			new HostnameVerifierAnalyser(vulnerabilities),
 			new AbstractVerifierAnalyser(vulnerabilities),
 

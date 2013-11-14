@@ -28,6 +28,8 @@ public final class Types {
 	public static final RefType HOSTNAME_VERIFIER = RefType.v("javax.net.ssl.HostnameVerifier");
 	public static final RefType ABSTRACT_VERIFIER = RefType.v("org.apache.http.conn.ssl.AbstractVerifier");
 	public static final RefType ALLOW_ALL_HOSTNAME_VERIFIER = RefType.v("org.apache.http.conn.ssl.AllowAllHostnameVerifier");
+	public static final RefType BROWSER_COMPAT_HOSTNAME_VERIFIER = RefType.v("org.apache.http.conn.ssl.BrowserCompatHostnameVerifier");
+	public static final RefType STRICT_HOSTNAME_VERIFIER = RefType.v("org.apache.http.conn.ssl.StrictHostnameVerifier");
 
 	public static final RefType APACHE_SSL_SOCKET_FACTORY = RefType.v("org.apache.http.conn.ssl.SSLSocketFactory");
 
