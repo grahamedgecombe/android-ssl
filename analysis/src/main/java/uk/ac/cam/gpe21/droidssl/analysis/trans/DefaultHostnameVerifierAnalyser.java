@@ -53,9 +53,9 @@ public final class DefaultHostnameVerifierAnalyser extends IntraProceduralAnalys
 					// TODO this is rather convoluted
 					if (ref.getSootClass().hasTag(HostnameVerifierTag.NAME)) {
 						HostnameVerifierTag tag = (HostnameVerifierTag) ref.getSootClass().getTag(HostnameVerifierTag.NAME);
-						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.DEFAULT_HTTPS_HOSTNAME_VERIFIER, tag.getState()));
+						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.HTTPS_CONNECTION_DEFAULT_TRUST_MANAGER, tag.getState()));
 					} else {
-						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.DEFAULT_HTTPS_HOSTNAME_VERIFIER, VulnerabilityState.UNKNOWN));
+						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.HTTPS_CONNECTION_DEFAULT_TRUST_MANAGER, VulnerabilityState.UNKNOWN));
 					}
 				}
 			}

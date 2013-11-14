@@ -55,17 +55,25 @@ public final class StaticAnalyser {
 		 * Add transforms to the Whole Jimple Pre-processing Pack.
 		 */
 		Pack wjpp = PackManager.v().getPack("wjpp");
-		wjpp.add(new Transform("wjpp.activity_entry_transformer", new ActivityEntryTransformer()));
+		wjpp.add(new Transform("wjpp.activity_entry_transformer", new EntryMethodTransformer()));
 
 		/*
 		 * Add transforms to the Whole Jimple Transformation Pack.
 		 */
 		AnalysisTransformer transformer = new AnalysisTransformer(
+			/* find vulnerable HostnameVerifiers */
 			new KnownVulnerableClassAnalyser(vulnerabilities),
 			new HostnameVerifierAnalyser(vulnerabilities),
 			new AbstractVerifierAnalyser(vulnerabilities),
+
+			/* find places where HostnameVerifiers are used */
 			new DefaultHostnameVerifierAnalyser(vulnerabilities),
+			new HttpsUrlConnectionAnalyser(vulnerabilities),
+
+			/* find vulnerable X509TrustManagers */
 			new TrustManagerAnalyser(vulnerabilities),
+
+			/* find places where X509TrustManagers are used */
 			new SslContextAnalyser(vulnerabilities)
 		);
 
