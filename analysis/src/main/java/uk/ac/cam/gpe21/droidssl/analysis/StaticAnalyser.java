@@ -92,6 +92,8 @@ public final class StaticAnalyser {
 		/*
 		 * Print out the list of vulnerabilities.
 		 */
+		System.err.println(vulnerabilities.size() + " vulnerabilities:");
+		System.err.flush();
 		for (Vulnerability vulnerability : vulnerabilities) {
 			System.out.println(vulnerability.toString());
 		}
