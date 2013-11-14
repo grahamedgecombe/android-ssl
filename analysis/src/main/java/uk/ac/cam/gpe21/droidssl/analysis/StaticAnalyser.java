@@ -50,32 +50,27 @@ public final class StaticAnalyser {
 		 * Add transforms to the Whole Jimple Pre-processing Pack.
 		 */
 		Pack wjpp = PackManager.v().getPack("wjpp");
-		wjpp.add(new Transform("wjpp.activity_entry_transformer",    new ActivityEntryTransformer()));
-		wjpp.add(new Transform("wjpp.known_vulnerable_class_tagger", new KnownVulnerableClassTagger()));
+		wjpp.add(new Transform("wjpp.activity_entry_transformer", new ActivityEntryTransformer()));
 
 		/*
-		 * Add transforms to the Jimple Transformation Pack.
+		 * Add transforms to the Whole Jimple Transformation Pack.
 		 */
-		Pack jtp = PackManager.v().getPack("jtp");
-		jtp.add(new Transform("jtp.hostname_verifier",         new HostnameVerifierAnalyser(vulnerabilities)));
-		jtp.add(new Transform("jtp.abstract_verifier",         new AbstractVerifierAnalyser(vulnerabilities)));
-		jtp.add(new Transform("jtp.default_hostname_verifier", new DefaultHostnameVerifierAnalyser(vulnerabilities)));
-		jtp.add(new Transform("jtp.trust_manager",             new TrustManagerAnalyser(vulnerabilities)));
-		jtp.add(new Transform("jtp.ssl_context",               new SslContextAnalyser(vulnerabilities)));
+		AnalysisTransformer transformer = new AnalysisTransformer(
+			new KnownVulnerableClassAnalyser(vulnerabilities),
+			new HostnameVerifierAnalyser(vulnerabilities),
+			new AbstractVerifierAnalyser(vulnerabilities),
+			new DefaultHostnameVerifierAnalyser(vulnerabilities),
+			new TrustManagerAnalyser(vulnerabilities),
+			new SslContextAnalyser(vulnerabilities)
+		);
+
+		Pack wjtp = PackManager.v().getPack("wjtp");
+		wjtp.add(new Transform("wjtp.analysis", transformer));
 
 		/*
 		 * Perform the analysis.
 		 */
 		Scene.v().loadNecessaryClasses();
-		PackManager.v().runPacks();
-
-		/*
-		 * TODO: temporary fix - the JTP transforms are executed for each
-		 * method, and then for each transform, however, we really need this to
-		 * be the other way around so that classes identified as being bad in
-		 * earlier transforms (e.g. hostname_verifier) can be made use of in
-		 * later transforms (e.g. ssl_context).
-		 */
 		PackManager.v().runPacks();
 
 		/*

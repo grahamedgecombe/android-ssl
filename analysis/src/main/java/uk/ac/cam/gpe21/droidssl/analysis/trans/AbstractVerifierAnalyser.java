@@ -15,7 +15,7 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
 
-public final class AbstractVerifierAnalyser extends Analyser {
+public final class AbstractVerifierAnalyser extends IntraProceduralAnalyser {
 	public AbstractVerifierAnalyser(List<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}

@@ -11,7 +11,7 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
 
-public final class DefaultHostnameVerifierAnalyser extends Analyser {
+public final class DefaultHostnameVerifierAnalyser extends IntraProceduralAnalyser {
 	public DefaultHostnameVerifierAnalyser(List<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}

@@ -15,7 +15,7 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
 
-public final class TrustManagerAnalyser extends Analyser {
+public final class TrustManagerAnalyser extends IntraProceduralAnalyser {
 	public TrustManagerAnalyser(List<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}

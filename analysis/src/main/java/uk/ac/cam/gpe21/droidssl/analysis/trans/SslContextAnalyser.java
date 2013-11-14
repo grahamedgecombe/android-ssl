@@ -10,7 +10,7 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 import java.util.List;
 
-public final class SslContextAnalyser extends Analyser {
+public final class SslContextAnalyser extends IntraProceduralAnalyser {
 	public SslContextAnalyser(List<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
