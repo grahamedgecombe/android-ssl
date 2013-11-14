@@ -32,10 +32,14 @@ public final class HostnameVerifierAnalyser extends IntraProceduralAnalyser {
 		if (!Signatures.methodSignatureMatches(method, BooleanType.v(), Types.STRING, Types.SSL_SESSION))
 			return;
 
+		VulnerabilityState state = VulnerabilityState.UNKNOWN;
+
 		UnitGraph graph = new BriefUnitGraph(body);
 		if (FlowGraphUtils.allExitsReturnTrue(graph)) {
-			clazz.addTag(new HostnameVerifierTag(VulnerabilityState.VULNERABLE));
-			vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER, VulnerabilityState.VULNERABLE));
+			state = VulnerabilityState.VULNERABLE;
 		}
+
+		clazz.addTag(new HostnameVerifierTag(state));
+		vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER, state));
 	}
 }

@@ -32,10 +32,14 @@ public final class AbstractVerifierAnalyser extends IntraProceduralAnalyser {
 		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.STRING, Types.STRING_ARRAY, Types.STRING_ARRAY))
 			return;
 
+		VulnerabilityState state = VulnerabilityState.UNKNOWN;
+
 		UnitGraph graph = new ExceptionalUnitGraph(body);
 		if (!FlowGraphUtils.anyExitThrowsException(graph, Types.SSL_EXCEPTION)) {
-			clazz.addTag(new HostnameVerifierTag(VulnerabilityState.VULNERABLE));
-			vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER, VulnerabilityState.VULNERABLE));
+			state = VulnerabilityState.VULNERABLE;
 		}
+
+		clazz.addTag(new HostnameVerifierTag(state));
+		vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER, state));
 	}
 }

@@ -33,10 +33,14 @@ public final class TrustManagerAnalyser extends IntraProceduralAnalyser {
 		if (!Signatures.methodSignatureMatches(method, VoidType.v(), Types.X509_CERTIFICATE_ARRAY, Types.STRING))
 			return;
 
+		VulnerabilityState state = VulnerabilityState.UNKNOWN;
+
 		UnitGraph graph = new ExceptionalUnitGraph(body);
 		if (!FlowGraphUtils.anyExitThrowsException(graph, Types.CERTIFICATE_EXCEPTION)) {
-			clazz.addTag(new TrustManagerTag(VulnerabilityState.VULNERABLE));
-			vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_TRUST_MANAGER, VulnerabilityState.VULNERABLE));
+			state = VulnerabilityState.VULNERABLE;
 		}
+
+		clazz.addTag(new TrustManagerTag(state));
+		vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_TRUST_MANAGER, state));
 	}
 }
