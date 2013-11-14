@@ -17,6 +17,11 @@ public final class StaticAnalyser {
 		}
 
 		/*
+		 * Write Soot's debug messages to stderr.
+		 */
+		G.v().out = System.err;
+
+		/*
 		 * Set path to input APK.
 		 */
 		Options.v().set_src_prec(Options.src_prec_apk);
@@ -76,9 +81,8 @@ public final class StaticAnalyser {
 		/*
 		 * Print out the list of vulnerabilities.
 		 */
-		System.err.println(vulnerabilities.size() + " vulnerabilities found:");
 		for (Vulnerability vulnerability : vulnerabilities) {
-			System.err.println("  " + vulnerability.toString());
+			System.out.println(vulnerability.toString());
 		}
 	}
 }
