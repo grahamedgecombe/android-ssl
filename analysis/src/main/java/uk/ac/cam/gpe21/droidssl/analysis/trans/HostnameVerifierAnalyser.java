@@ -7,8 +7,9 @@ import soot.SootMethod;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
+import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
-import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
+import uk.ac.cam.gpe21.droidssl.analysis.tag.HostnameVerifierTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.FlowGraphUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
@@ -33,8 +34,8 @@ public final class HostnameVerifierAnalyser extends IntraProceduralAnalyser {
 
 		UnitGraph graph = new BriefUnitGraph(body);
 		if (FlowGraphUtils.allExitsReturnTrue(graph)) {
-			clazz.addTag(new VulnerabilityTag());
-			vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER));
+			clazz.addTag(new HostnameVerifierTag(VulnerabilityState.VULNERABLE));
+			vulnerabilities.add(new Vulnerability(clazz, VulnerabilityType.PERMISSIVE_HOSTNAME_VERIFIER, VulnerabilityState.VULNERABLE));
 		}
 	}
 }

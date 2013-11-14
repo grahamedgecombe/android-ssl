@@ -4,8 +4,9 @@ import soot.*;
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
+import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
-import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
+import uk.ac.cam.gpe21.droidssl.analysis.tag.HostnameVerifierTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
@@ -48,8 +49,13 @@ public final class DefaultHostnameVerifierAnalyser extends IntraProceduralAnalys
 						continue;
 
 					RefType ref = (RefType) type;
-					if (ref.getSootClass().hasTag(VulnerabilityTag.NAME)) {
-						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.DEFAULT_HTTPS_HOSTNAME_VERIFIER));
+
+					// TODO this is rather convoluted
+					if (ref.getSootClass().hasTag(HostnameVerifierTag.NAME)) {
+						HostnameVerifierTag tag = (HostnameVerifierTag) ref.getSootClass().getTag(HostnameVerifierTag.NAME);
+						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.DEFAULT_HTTPS_HOSTNAME_VERIFIER, tag.getState()));
+					} else {
+						vulnerabilities.add(new Vulnerability(body.getMethod(), VulnerabilityType.DEFAULT_HTTPS_HOSTNAME_VERIFIER, VulnerabilityState.UNKNOWN));
 					}
 				}
 			}

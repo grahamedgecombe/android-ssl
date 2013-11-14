@@ -5,6 +5,7 @@ import soot.jimple.*;
 import soot.toolkits.graph.BriefUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
+import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
 import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityType;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
@@ -43,8 +44,8 @@ public final class SslContextAnalyser extends IntraProceduralAnalyser {
 					// TODO deal with the fact it could also be SSL_SOCKET_FACTORY
 					if (clazz.equals(Types.SOCKET_FACTORY) && targetName.equals("createSocket")) {
 						if (analysis.getFlowBefore(stmt).contains(instanceExpr.getBase())) {
-							vulnerabilities.add(new Vulnerability(method, VulnerabilityType.SOCKET_USES_PERMISSIVE_TRUST_MANAGER));
-						}
+							vulnerabilities.add(new Vulnerability(method, VulnerabilityType.SOCKET_USES_PERMISSIVE_TRUST_MANAGER, VulnerabilityState.VULNERABLE));
+						} // TODO: else add SAFE? or UNKNOWN? or nothing at all?
 					}
 				}
 			});

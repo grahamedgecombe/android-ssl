@@ -6,7 +6,8 @@ import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.scalar.ArraySparseSet;
 import soot.toolkits.scalar.FlowSet;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
-import uk.ac.cam.gpe21.droidssl.analysis.tag.VulnerabilityTag;
+import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
+import uk.ac.cam.gpe21.droidssl.analysis.tag.TrustManagerTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
 public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, FlowSet> {
@@ -70,8 +71,12 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 				right.apply(new AbstractJimpleValueSwitch() {
 					@Override
 					public void caseNewExpr(NewExpr right) {
-						if (right.getBaseType().getSootClass().hasTag(VulnerabilityTag.NAME)) {
-							out.add(leftBox[0]);
+						if (right.getBaseType().getSootClass().hasTag(TrustManagerTag.NAME)) {
+							// TODO: this is rather convoluted and needs a way to deal with SAFE/UNKNOWN too
+							TrustManagerTag tag = (TrustManagerTag) right.getBaseType().getSootClass().getTag(TrustManagerTag.NAME);
+							if (tag.getState() == VulnerabilityState.VULNERABLE) {
+								out.add(leftBox[0]);
+							}
 						}
 					}
 
