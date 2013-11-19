@@ -98,9 +98,12 @@ project(':test-hv') {
 	apply plugin: 'android'
 	apply plugin: 'idea'
 
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
 	android {
-		compileSdkVersion 18
-		buildToolsVersion '18.1.1'
+		compileSdkVersion 19
+		buildToolsVersion '19'
 	}
 
 	idea {
@@ -116,9 +119,12 @@ project(':test-trust') {
 	apply plugin: 'android'
 	apply plugin: 'idea'
 
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
 	android {
-		compileSdkVersion 18
-		buildToolsVersion '18.1.1'
+		compileSdkVersion 19
+		buildToolsVersion '19'
 	}
 
 	idea {
