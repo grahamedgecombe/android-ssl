@@ -1,11 +1,14 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
+import com.sun.jna.ptr.IntByReference;
+
 import javax.net.ssl.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -43,6 +46,12 @@ public final class MitmServer {
 	public void start() throws IOException {
 		while (true) {
 			SSLSocket socket = (SSLSocket) serverSocket.accept();
+
+			int fd = FileDescriptors.getFd(socket);
+			byte[] addr = new byte[28];
+			int error = CLibrary.INSTANCE.getsockopt(fd, CLibrary.SOL_IP, CLibrary.SO_ORIGINAL_DST, addr, new IntByReference(addr.length));
+			System.out.println(error + " " + Arrays.toString(addr));
+
 			SSLSocket other = (SSLSocket) childFactory.createSocket(host, port);
 
 			IoCopyRunnable clientToServerCopier = new IoCopyRunnable(socket.getInputStream(), other.getOutputStream());
