@@ -12,6 +12,7 @@ buildscript {
 
 	dependencies {
 		classpath group: 'com.github.ben-manes', name: 'gradle-versions-plugin', version: '0.4'
+		classpath group: 'eu.appsatori', name: 'gradle-fatjar-plugin', version: '0.2'
 		classpath group: 'com.android.tools.build', name: 'gradle', version: '0.6.3'
 		classpath group: 'com.google.guava', name: 'guava', version: '15.0' /* for Android Gradle plugin */
 	}
@@ -84,6 +85,7 @@ project(':apkdl') {
 
 project(':mitm') {
 	apply plugin: 'java'
+	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
 	sourceCompatibility = 1.7
@@ -94,6 +96,16 @@ project(':mitm') {
 		compile group: 'net.java.dev.jna', name: 'jna', version: '4.0.0'
 		compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.49'
 		compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.49'
+	}
+
+	fatJar {
+		manifest {
+			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.MitmServer'
+		}
+
+		exclude 'META-INF/*.DSA'
+		exclude 'META-INF/*.RSA'
+		exclude 'META-INF/*.SF'
 	}
 }
 
