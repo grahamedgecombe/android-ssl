@@ -3,18 +3,17 @@ package uk.ac.cam.gpe21.droidssl.mitm.cert;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.bc.BcX509ExtensionUtils;
 import org.bouncycastle.cert.bc.BcX509v3CertificateBuilder;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.PEMWriter;
@@ -51,6 +50,7 @@ public final class CertificateGenerator {
 
 	private final SecureRandom random = new SecureRandom();
 	private final X509CertificateHolder caCertificate;
+	private final AsymmetricKeyParameter caPublicKey;
 	private final AsymmetricKeyParameter caPrivateKey;
 	private BigInteger serial = BigInteger.ZERO;
 
@@ -69,6 +69,7 @@ public final class CertificateGenerator {
 				throw new IOException("Failed to read CA key file");
 
 			PEMKeyPair pair = (PEMKeyPair) object;
+			caPublicKey = PublicKeyFactory.createKey(pair.getPublicKeyInfo());
 			caPrivateKey = PrivateKeyFactory.createKey(pair.getPrivateKeyInfo());
 		}
 	}
@@ -93,6 +94,7 @@ public final class CertificateGenerator {
 
 			X500Name subject = new X500NameBuilder().addRDN(BCStyle.CN, cn).build();
 
+			BcX509ExtensionUtils utils = new BcX509ExtensionUtils();
 			X509v3CertificateBuilder builder = new BcX509v3CertificateBuilder(caCertificate, serial, notBefore.getTime(), notAfter.getTime(), subject, keyPair.getPublic());
 
 			/* subjectAlernativeName extension */
@@ -100,9 +102,24 @@ public final class CertificateGenerator {
 			for (int i = 0; i < names.length; i++) {
 				names[i] = new GeneralName(GeneralName.dNSName, sans[i]);
 			}
+			builder.addExtension(X509Extension.subjectAlternativeName, false, new GeneralNames(names));
 
-			GeneralNames subjectAlternativeName = new GeneralNames(names);
-			builder.addExtension(X509Extension.subjectAlternativeName, false, subjectAlternativeName);
+			/* basicConstraints extension */
+			builder.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(false));
+
+			/* subjectKeyIdentifier extension */
+			builder.addExtension(X509Extension.subjectKeyIdentifier, false, utils.createSubjectKeyIdentifier(keyPair.getPublic()));
+
+			/* authorityKeyIdentifier extension */
+			builder.addExtension(X509Extension.authorityKeyIdentifier, false, utils.createAuthorityKeyIdentifier(caPublicKey));
+
+			/* keyUsage extension */
+			int usage = KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.keyAgreement;
+			builder.addExtension(X509Extension.keyUsage, true, new KeyUsage(usage));
+
+			/* extendedKeyUsage extension */
+			KeyPurposeId[] usages = { KeyPurposeId.id_kp_serverAuth };
+			builder.addExtension(X509Extension.extendedKeyUsage, false, new ExtendedKeyUsage(usages));
 
 			/* create the signer */
 			AlgorithmIdentifier signatureAlgorithm = new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
