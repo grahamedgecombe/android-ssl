@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm;
+package uk.ac.cam.gpe21.droidssl.mitm.util;
 
 import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference;
