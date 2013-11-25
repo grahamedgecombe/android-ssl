@@ -1,14 +1,14 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
-import com.sun.jna.ptr.IntByReference;
-
 import javax.net.ssl.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
+import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -20,8 +20,6 @@ public final class MitmServer {
 	}
 
 	private final Executor executor = Executors.newCachedThreadPool();
-	private final String host = "encrypted.google.com";
-	private final int port = 443;
 	private final SSLServerSocket serverSocket;
 	private final SSLSocketFactory childFactory;
 
@@ -43,16 +41,28 @@ public final class MitmServer {
 		this.childFactory = childContext.getSocketFactory();
 	}
 
-	public void start() throws IOException {
+	public void start() throws IOException, CertificateParsingException {
 		while (true) {
 			SSLSocket socket = (SSLSocket) serverSocket.accept();
 
-			int fd = FileDescriptors.getFd(socket);
-			byte[] addr = new byte[28];
-			int error = CLibrary.INSTANCE.getsockopt(fd, CLibrary.SOL_IP, CLibrary.SO_ORIGINAL_DST, addr, new IntByReference(addr.length));
-			System.out.println(error + " " + Arrays.toString(addr));
+			InetSocketAddress addr = Sockets.getOriginalDestination(socket);
+			SSLSocket other = (SSLSocket) childFactory.createSocket(addr.getAddress(), addr.getPort());
 
-			SSLSocket other = (SSLSocket) childFactory.createSocket(host, port);
+			/*
+			 * Normally the handshake is only started when reading or writing
+			 * the first byte of data. However, we start it immediately to:
+			 * - get the server's real certificate
+			 * - create a fake certificate to present to the client
+			 * - perform the handshake with the client
+			 * and then at that point start relaying data between client and
+			 * server.
+			 */
+			other.startHandshake();
+
+			Certificate[] chain = other.getSession().getPeerCertificates();
+			X509Certificate leaf = (X509Certificate) chain[0];
+			System.out.println("DN=" + leaf.getSubjectX500Principal());
+			System.out.println("SANs=" + leaf.getSubjectAlternativeNames());
 
 			IoCopyRunnable clientToServerCopier = new IoCopyRunnable(socket.getInputStream(), other.getOutputStream());
 			IoCopyRunnable serverToClientCopier = new IoCopyRunnable(other.getInputStream(), socket.getOutputStream());

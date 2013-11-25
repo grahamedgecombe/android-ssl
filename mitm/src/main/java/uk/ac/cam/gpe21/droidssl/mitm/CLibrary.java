@@ -1,17 +1,39 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
+import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference;
 
+import java.util.Arrays;
+import java.util.List;
+
 public interface CLibrary extends Library {
-	final CLibrary INSTANCE = (CLibrary) Native.loadLibrary("c", CLibrary.class);
+	public final CLibrary INSTANCE = (CLibrary) Native.loadLibrary("c", CLibrary.class);
 
-	final int PF_INET = 2;          /* from /usr/include/bits/socket.h */
-	final int PF_INET6 = 10;
+	/* from /usr/include/bits/socket.h */
+	public final int PF_INET = 2;
 
-	final int SOL_IP = 0;           /* from /usr/include/bits/in.h */
-	final int SO_ORIGINAL_DST = 80; /* from /usr/include/linux/netfilter_ipv4.h */
+	/* from /usr/include/bits/in.h */
+	public final int SOL_IP = 0;
 
-	int getsockopt(int s, int level, int optname, byte[] optval, IntByReference optlen);
+	/* from /usr/include/linux/netfilter_ipv4.h */
+	public final int SO_ORIGINAL_DST = 80;
+
+	/* from /usr/include/linux/in.h */
+	public final class sockaddr_in extends Structure {
+		public short sin_family;
+		public short sin_port;
+		public byte[] sin_addr = new byte[4];
+		public byte[] sin_zero = new byte[8];
+
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList("sin_family", "sin_port", "sin_addr", "sin_zero");
+		}
+	}
+
+	/* from /usr/include/sys/socket.h */
+	public int getsockopt(int socket, int level, int option_name, Pointer option_value, IntByReference option_len) throws LastErrorException;
+
+	/* from /usr/include/string.h */
+	public String strerror(int errnum);
 }

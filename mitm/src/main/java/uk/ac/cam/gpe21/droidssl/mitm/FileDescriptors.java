@@ -28,7 +28,20 @@ public final class FileDescriptors {
 
 	public static int getFd(Socket socket) throws IOException {
 		try {
-			Object in = socket instanceof SSLSocket ? SOCK_INPUT.get(socket) : socket.getInputStream();
+			Object in;
+			if (socket instanceof SSLSocket) {
+				/*
+				 * Socket.getInputStream() on an SSLSocket returns the
+				 * InputStream which reads the decrypted data from a buffer in
+				 * memory - in this case, we read the private
+				 * SSLSocketImpl.sockInput field with reflection to get at the
+				 * InputStream which is backed by a file descriptor.
+				 */
+				in = SOCK_INPUT.get(socket);
+			} else {
+				in = socket.getInputStream();
+			}
+
 			if (!(in instanceof FileInputStream))
 				throw new IOException("sockInput is not an instance of FileInputStream");
 
