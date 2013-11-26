@@ -9,9 +9,7 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.bc.BcX509ExtensionUtils;
 import org.bouncycastle.cert.bc.BcX509v3CertificateBuilder;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -29,14 +27,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public final class CertificateGenerator {
 	public static void main(String[] args) throws IOException {
-		CertificateGenerator generator = new CertificateGenerator(Paths.get("ca.crt"), Paths.get("ca.key"));
+		KeyPairGenerator keyGenerator = new KeyPairGenerator();
+		AsymmetricCipherKeyPair keyPair = keyGenerator.generate();
+
+		CertificateGenerator generator = new CertificateGenerator(Paths.get("ca.crt"), Paths.get("ca.key"), keyPair);
 		CertificateBundle bundle = generator.generate("google.com", new String[] { "www.google.com", "google.com" });
 
 		try (PEMWriter writer = new PEMWriter(Files.newBufferedWriter(Paths.get("generated.crt"), StandardCharsets.UTF_8))) {
@@ -45,16 +45,16 @@ public final class CertificateGenerator {
 	}
 
 	private static final TimeZone UTC = TimeZone.getTimeZone("Etc/UTC");
-	private static final BigInteger PUBLIC_EXPONENT = new BigInteger("10001", 16); /* 65537 */
-	private static final int KEY_LENGTH = 2048;
 
-	private final SecureRandom random = new SecureRandom();
 	private final X509CertificateHolder caCertificate;
 	private final AsymmetricKeyParameter caPublicKey;
 	private final AsymmetricKeyParameter caPrivateKey;
+	private final AsymmetricCipherKeyPair keyPair;
 	private BigInteger serial = BigInteger.ZERO;
 
-	public CertificateGenerator(Path caCertificateFile, Path caKeyFile) throws IOException {
+	public CertificateGenerator(Path caCertificateFile, Path caKeyFile, AsymmetricCipherKeyPair keyPair) throws IOException {
+		this.keyPair = keyPair;
+
 		try (PEMParser parser = new PEMParser(Files.newBufferedReader(caCertificateFile, StandardCharsets.UTF_8))) {
 			Object object = parser.readObject();
 			if (!(object instanceof X509CertificateHolder))
@@ -76,13 +76,6 @@ public final class CertificateGenerator {
 
 	public CertificateBundle generate(String cn, String[] sans) {
 		try {
-			/* generate key pair */
-			RSAKeyPairGenerator keyGenerator = new RSAKeyPairGenerator();
-			keyGenerator.init(new RSAKeyGenerationParameters(
-				PUBLIC_EXPONENT, random, KEY_LENGTH, 95 /* certainty in % */
-			));
-			AsymmetricCipherKeyPair keyPair = keyGenerator.generateKeyPair();
-
 			/* basic certificate structure */
 			serial = serial.add(BigInteger.ONE);
 
