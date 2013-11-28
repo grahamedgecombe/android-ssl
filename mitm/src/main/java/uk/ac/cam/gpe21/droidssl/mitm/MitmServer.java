@@ -77,7 +77,7 @@ public final class MitmServer {
 			other.startHandshake();
 
 			/*
-			 * Extract distinguished name and subjectAltNames from the certificate.
+			 * Extract common name and subjectAltNames from the certificate.
 			 */
 			Certificate[] chain = other.getSession().getPeerCertificates();
 			X509Certificate leaf = (X509Certificate) chain[0];
@@ -94,7 +94,7 @@ public final class MitmServer {
 			String[] sans = new String[0]; // TODO extract
 
 			/*
-			 * Try to check if we have generated a certificate with the same DN
+			 * Try to check if we have generated a certificate with the same CN
 			 * & SANs already - if so, re-use it. (If we don't re-use it, e.g.
 			 * a web browser thinks the certificate is different once we ignore
 			 * the untrusted issuer error message, and we'll get another
