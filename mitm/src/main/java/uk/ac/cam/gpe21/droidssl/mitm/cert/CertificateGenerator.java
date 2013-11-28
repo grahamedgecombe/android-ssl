@@ -37,10 +37,10 @@ public final class CertificateGenerator {
 		AsymmetricCipherKeyPair keyPair = keyGenerator.generate();
 
 		CertificateGenerator generator = new CertificateGenerator(Paths.get("ca.crt"), Paths.get("ca.key"), keyPair);
-		CertificateBundle bundle = generator.generate("google.com", new String[] { "www.google.com", "google.com" });
+		X509CertificateHolder certificate = generator.generate("google.com", new String[] { "www.google.com", "google.com" });
 
 		try (PEMWriter writer = new PEMWriter(Files.newBufferedWriter(Paths.get("generated.crt"), StandardCharsets.UTF_8))) {
-			writer.writeObject(bundle.getCertificate());
+			writer.writeObject(certificate);
 		}
 	}
 
@@ -74,7 +74,7 @@ public final class CertificateGenerator {
 		}
 	}
 
-	public CertificateBundle generate(String cn, String[] sans) {
+	public X509CertificateHolder generate(String cn, String[] sans) {
 		try {
 			/* basic certificate structure */
 			serial = serial.add(BigInteger.ONE);
@@ -120,8 +120,7 @@ public final class CertificateGenerator {
 			ContentSigner signer = new BcRSAContentSignerBuilder(signatureAlgorithm, digestAlgorithm).build(caPrivateKey);
 
 			/* build and sign the certificate */
-			X509CertificateHolder certificate = builder.build(signer);
-			return new CertificateBundle(certificate, keyPair);
+			return builder.build(signer);
 		} catch (IOException | OperatorCreationException ex) {
 			throw new CertificateGenerationException(ex);
 		}
