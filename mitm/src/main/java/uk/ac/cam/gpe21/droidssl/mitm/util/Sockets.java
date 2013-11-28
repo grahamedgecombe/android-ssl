@@ -80,14 +80,16 @@ public final class Sockets {
 			/*
 			 * JNA takes care of reversing the order of the bytes in integer
 			 * struct fields. However, sin_port is already in network byte
-			 * order (big endian), the same byte order as used by Java, so JNA
-			 * actually converts sin_port to little endian. Therefore we need to
-			 * call Short.reverseBytes() to swap it back to big endian.
+			 * order (big endian), the same byte order as used by Java, so if
+			 * we used a short here, JNA would actually convert sin_port to
+			 * little endian (if the underlying CPU was little endian).
 			 *
-			 * TODO if the underlying CPU is big endian, do we need to call
-			 * reverseBytes()?
+			 * Therefore we represent sin_port as a byte array in the structure
+			 * and manually shift the bytes around to convert it into an
+			 * integer, such that this code works on both big and little endian
+			 * CPUs.
 			 */
-			int port = Short.reverseBytes(addr.sin_port) & 0xFFFF;
+			int port = ((addr.sin_port[0] & 0xFF) << 8) | (addr.sin_port[1] & 0xFF);
 			InetAddress ip = InetAddress.getByAddress(addr.sin_addr);
 			return new InetSocketAddress(ip, port);
 		} else {

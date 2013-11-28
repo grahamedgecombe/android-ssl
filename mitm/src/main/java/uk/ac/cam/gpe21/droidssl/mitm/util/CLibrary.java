@@ -21,7 +21,7 @@ public interface CLibrary extends Library {
 	/* from /usr/include/linux/in.h */
 	public final class sockaddr_in extends Structure {
 		public short sin_family;
-		public short sin_port;
+		public byte[] sin_port = new byte[2];
 		public byte[] sin_addr = new byte[4];
 		public byte[] sin_zero = new byte[8];
 
