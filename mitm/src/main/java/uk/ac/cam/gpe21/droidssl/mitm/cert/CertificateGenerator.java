@@ -35,7 +35,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public final class CertificateGenerator {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, CertificateException {
 		KeyPairGenerator keyGenerator = new KeyPairGenerator();
 		AsymmetricCipherKeyPair keyPair = keyGenerator.generate();
 
@@ -50,12 +50,13 @@ public final class CertificateGenerator {
 	private static final TimeZone UTC = TimeZone.getTimeZone("Etc/UTC");
 
 	private final X509CertificateHolder caCertificate;
+	private final X509Certificate jcaCaCertificate;
 	private final AsymmetricKeyParameter caPublicKey;
 	private final AsymmetricKeyParameter caPrivateKey;
 	private final AsymmetricCipherKeyPair keyPair;
 	private BigInteger serial = BigInteger.ZERO;
 
-	public CertificateGenerator(Path caCertificateFile, Path caKeyFile, AsymmetricCipherKeyPair keyPair) throws IOException {
+	public CertificateGenerator(Path caCertificateFile, Path caKeyFile, AsymmetricCipherKeyPair keyPair) throws IOException, CertificateException {
 		this.keyPair = keyPair;
 
 		try (PEMParser parser = new PEMParser(Files.newBufferedReader(caCertificateFile, StandardCharsets.UTF_8))) {
@@ -64,6 +65,7 @@ public final class CertificateGenerator {
 				throw new IOException("Failed to read CA certificate file");
 
 			caCertificate = (X509CertificateHolder) object;
+			jcaCaCertificate = new JcaX509CertificateConverter().getCertificate(caCertificate);
 		}
 
 		try (PEMParser parser = new PEMParser(Files.newBufferedReader(caKeyFile, StandardCharsets.UTF_8))) {
@@ -77,6 +79,10 @@ public final class CertificateGenerator {
 		}
 	}
 
+	public X509Certificate getCaCertificate() {
+		return jcaCaCertificate;
+	}
+
 	public X509Certificate generateJca(String cn, String[] sans) throws CertificateException {
 		JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
 		X509CertificateHolder certificate = generate(cn, sans);
@@ -86,7 +92,9 @@ public final class CertificateGenerator {
 	public X509CertificateHolder generate(String cn, String[] sans) {
 		try {
 			/* basic certificate structure */
-			serial = serial.add(BigInteger.ONE);
+			//serial = serial.add(BigInteger.ONE);
+			// TODO: temporary workaround as reusing serial numbers makes Firefox complain
+			serial = new BigInteger(Long.toString(System.currentTimeMillis()));
 
 			Calendar notBefore = new GregorianCalendar(UTC);
 			notBefore.add(Calendar.HOUR, -1);
@@ -100,11 +108,13 @@ public final class CertificateGenerator {
 			X509v3CertificateBuilder builder = new BcX509v3CertificateBuilder(caCertificate, serial, notBefore.getTime(), notAfter.getTime(), subject, keyPair.getPublic());
 
 			/* subjectAlernativeName extension */
-			GeneralName[] names = new GeneralName[sans.length];
-			for (int i = 0; i < names.length; i++) {
-				names[i] = new GeneralName(GeneralName.dNSName, sans[i]);
+			if (sans.length > 0) {
+				GeneralName[] names = new GeneralName[sans.length];
+				for (int i = 0; i < names.length; i++) {
+					names[i] = new GeneralName(GeneralName.dNSName, sans[i]);
+				}
+				builder.addExtension(X509Extension.subjectAlternativeName, false, new GeneralNames(names));
 			}
-			builder.addExtension(X509Extension.subjectAlternativeName, false, new GeneralNames(names));
 
 			/* basicConstraints extension */
 			builder.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(false));
