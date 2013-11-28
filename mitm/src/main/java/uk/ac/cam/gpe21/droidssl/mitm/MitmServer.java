@@ -8,7 +8,6 @@ import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import uk.ac.cam.gpe21.droidssl.mitm.cert.CertificateGenerator;
 import uk.ac.cam.gpe21.droidssl.mitm.cert.KeyPairGenerator;
-import uk.ac.cam.gpe21.droidssl.mitm.util.Sockets;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -31,6 +30,7 @@ public final class MitmServer {
 	}
 
 	private final Executor executor = Executors.newCachedThreadPool();
+	private final DestinationFinder destinationFinder = new NatDestinationFinder();
 	private final CertificateGenerator certificateGenerator;
 	private final Map<CertificateKey, X509Certificate> certificateCache = new HashMap<>();
 	private final MitmKeyManager keyManager;
@@ -62,7 +62,7 @@ public final class MitmServer {
 			/*
 			 * Find the address of the target server and connect to it.
 			 */
-			InetSocketAddress addr = Sockets.getOriginalDestination(socket);
+			InetSocketAddress addr = destinationFinder.getDestination(socket);
 			SSLSocket other = (SSLSocket) childFactory.createSocket(addr.getAddress(), addr.getPort());
 
 			/*
