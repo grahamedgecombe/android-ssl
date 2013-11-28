@@ -8,6 +8,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.bc.BcX509ExtensionUtils;
 import org.bouncycastle.cert.bc.BcX509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
@@ -27,6 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -72,6 +75,12 @@ public final class CertificateGenerator {
 			caPublicKey = PublicKeyFactory.createKey(pair.getPublicKeyInfo());
 			caPrivateKey = PrivateKeyFactory.createKey(pair.getPrivateKeyInfo());
 		}
+	}
+
+	public X509Certificate generateJca(String cn, String[] sans) throws CertificateException {
+		JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
+		X509CertificateHolder certificate = generate(cn, sans);
+		return converter.getCertificate(certificate);
 	}
 
 	public X509CertificateHolder generate(String cn, String[] sans) {
