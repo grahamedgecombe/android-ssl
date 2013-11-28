@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm;
+package uk.ac.cam.gpe21.droidssl.mitm.socket;
 
 import uk.ac.cam.gpe21.droidssl.mitm.util.Sockets;
 

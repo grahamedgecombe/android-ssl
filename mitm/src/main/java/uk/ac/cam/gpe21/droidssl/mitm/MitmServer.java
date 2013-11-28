@@ -8,6 +8,8 @@ import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import uk.ac.cam.gpe21.droidssl.mitm.cert.CertificateGenerator;
 import uk.ac.cam.gpe21.droidssl.mitm.cert.KeyPairGenerator;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.DestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.NatDestinationFinder;
 
 import javax.net.ssl.*;
 import java.io.IOException;
