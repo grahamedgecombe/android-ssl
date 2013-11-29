@@ -15,7 +15,6 @@ import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
@@ -27,7 +26,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
@@ -35,18 +33,6 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public final class CertificateGenerator {
-	public static void main(String[] args) throws IOException, CertificateException {
-		KeyPairGenerator keyGenerator = new KeyPairGenerator();
-		AsymmetricCipherKeyPair keyPair = keyGenerator.generate();
-
-		CertificateGenerator generator = new CertificateGenerator(Paths.get("ca.crt"), Paths.get("ca.key"), keyPair);
-		X509CertificateHolder certificate = generator.generate("google.com", new String[] { "www.google.com", "google.com" });
-
-		try (PEMWriter writer = new PEMWriter(Files.newBufferedWriter(Paths.get("generated.crt"), StandardCharsets.UTF_8))) {
-			writer.writeObject(certificate);
-		}
-	}
-
 	private static final TimeZone UTC = TimeZone.getTimeZone("Etc/UTC");
 
 	private final X509CertificateHolder caCertificate;
