@@ -6,9 +6,10 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import uk.ac.cam.gpe21.droidssl.mitm.cert.CertificateGenerator;
-import uk.ac.cam.gpe21.droidssl.mitm.cert.CertificateKey;
-import uk.ac.cam.gpe21.droidssl.mitm.cert.KeyPairGenerator;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.CertificateGenerator;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.CertificateKey;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.KeyPairGenerator;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.MitmKeyManager;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.DestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.NatDestinationFinder;
 
