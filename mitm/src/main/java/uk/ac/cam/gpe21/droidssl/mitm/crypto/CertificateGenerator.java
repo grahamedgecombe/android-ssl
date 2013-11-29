@@ -69,10 +69,14 @@ public final class CertificateGenerator {
 		return jcaCaCertificate;
 	}
 
-	public X509Certificate generateJca(String cn, String[] sans) throws CertificateException {
-		JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
-		X509CertificateHolder certificate = generate(cn, sans);
-		return converter.getCertificate(certificate);
+	public X509Certificate generateJca(String cn, String[] sans) {
+		try {
+			JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
+			X509CertificateHolder certificate = generate(cn, sans);
+			return converter.getCertificate(certificate);
+		} catch (CertificateException ex) {
+			throw new CertificateGenerationException(ex);
+		}
 	}
 
 	public X509CertificateHolder generate(String cn, String[] sans) {
