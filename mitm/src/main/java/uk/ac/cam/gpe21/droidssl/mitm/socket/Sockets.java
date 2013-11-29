@@ -1,7 +1,8 @@
-package uk.ac.cam.gpe21.droidssl.mitm.util;
+package uk.ac.cam.gpe21.droidssl.mitm.socket;
 
 import com.sun.jna.LastErrorException;
 import com.sun.jna.ptr.IntByReference;
+import uk.ac.cam.gpe21.droidssl.mitm.util.CLibrary;
 
 import javax.net.ssl.SSLSocket;
 import java.io.FileDescriptor;
