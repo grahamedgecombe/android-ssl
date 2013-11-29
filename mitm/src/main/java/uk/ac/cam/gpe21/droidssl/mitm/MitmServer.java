@@ -1,10 +1,5 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
-import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
-import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.*;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.KeyPairGenerator;
@@ -80,17 +75,8 @@ public final class MitmServer {
 			 */
 			Certificate[] chain = other.getSession().getPeerCertificates();
 			X509Certificate leaf = (X509Certificate) chain[0];
-			X500Name dn = JcaX500NameUtil.getSubject(leaf);
-			String cn = null; // TODO extract into a method
-			for (RDN rdn : dn.getRDNs()) {
-				AttributeTypeAndValue first = rdn.getFirst();
-				if (first.getType().equals(BCStyle.CN)) {
-					cn = first.getValue().toString();
-				}
-			}
-			if (cn == null)
-				throw new IOException("DN has no CN!");
-			String[] sans = new String[0]; // TODO extract
+			String cn = CertificateUtils.extractCn(leaf);
+			String[] sans = CertificateUtils.extractSans(leaf);
 
 			/*
 			 * Try to check if we have generated a certificate with the same CN
