@@ -7,6 +7,6 @@ import java.net.Socket;
 public final class NatDestinationFinder extends DestinationFinder {
 	@Override
 	public InetSocketAddress getDestination(Socket socket) throws IOException {
-		return Sockets.getOriginalDestination(socket);
+		return SocketUtils.getOriginalDestination(socket);
 	}
 }

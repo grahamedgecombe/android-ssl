@@ -13,7 +13,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public final class Sockets {
+public final class SocketUtils {
 	private static final Class<?> SSL_SOCKET_IMPL;
 	private static final Field SOCK_INPUT;
 	private static final Field FD;
@@ -22,7 +22,7 @@ public final class Sockets {
 		try {
 			SSL_SOCKET_IMPL = Class.forName("sun.security.ssl.SSLSocketImpl");
 
-			SOCK_INPUT = Sockets.SSL_SOCKET_IMPL.getDeclaredField("sockInput");
+			SOCK_INPUT = SocketUtils.SSL_SOCKET_IMPL.getDeclaredField("sockInput");
 			SOCK_INPUT.setAccessible(true);
 
 			FD = FileDescriptor.class.getDeclaredField("fd");
@@ -98,7 +98,7 @@ public final class Sockets {
 		}
 	}
 
-	private Sockets() {
+	private SocketUtils() {
 		/* to prevent instantiation */
 	}
 }
