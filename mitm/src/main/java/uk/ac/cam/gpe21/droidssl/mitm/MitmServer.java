@@ -48,7 +48,10 @@ public final class MitmServer {
 		}, null, null);
 		this.serverSocket = (SSLServerSocket) context.getServerSocketFactory().createServerSocket(8443);
 
-		SSLContext childContext = SSLContext.getDefault();
+		SSLContext childContext = SSLContext.getInstance("TLS");
+		childContext.init(null, new TrustManager[] {
+			new PermissiveTrustManager()
+		}, null);
 		this.childFactory = childContext.getSocketFactory();
 	}
 
