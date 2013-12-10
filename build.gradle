@@ -108,3 +108,45 @@ project(':mitm') {
 		exclude 'META-INF/*.SF'
 	}
 }
+
+project(':test-hv') {
+	apply plugin: 'android'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
+	android {
+		compileSdkVersion 19
+		buildToolsVersion '19'
+	}
+
+	idea {
+		module {
+			sourceDirs += file('src/main/java')
+			testSourceDirs += file('src/instrumentTest/java')
+			jdkName = 'android'
+		}
+	}
+}
+
+project(':test-trust') {
+	apply plugin: 'android'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
+	android {
+		compileSdkVersion 19
+		buildToolsVersion '19'
+	}
+
+	idea {
+		module {
+			sourceDirs += file('src/main/java')
+			testSourceDirs += file('src/instrumentTest/java')
+			jdkName = 'android'
+		}
+	}
+}
