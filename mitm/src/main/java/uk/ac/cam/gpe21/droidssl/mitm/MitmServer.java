@@ -33,6 +33,9 @@ public final class MitmServer {
 		parser.accepts("nat");
 		parser.accepts("standard");
 
+		parser.accepts("matching-hostname");
+		parser.accepts("unmatching-hostname");
+
 		parser.accepts("trusted");
 		parser.accepts("untrusted");
 
@@ -52,6 +55,17 @@ public final class MitmServer {
 			return;
 		}
 
+		HostnameFinder hostnameFinder;
+		if (set.has("matching-hostname")) {
+			hostnameFinder = new StandardHostnameFinder();
+		} else if (set.has("unmatching-hostname")) {
+			hostnameFinder = new FakeHostnameFinder();
+		} else {
+			System.err.println("Either --matching-hostname or --unmatching-hostname must be specified.");
+			System.exit(1);
+			return;
+		}
+
 		String caPrefix;
 		if (set.has("trusted")) {
 			caPrefix = "trusted";
@@ -63,12 +77,13 @@ public final class MitmServer {
 			return;
 		}
 
-		MitmServer server = new MitmServer(destinationFinder, caPrefix);
+		MitmServer server = new MitmServer(destinationFinder, hostnameFinder, caPrefix);
 		server.start();
 	}
 
 	private final Executor executor = Executors.newCachedThreadPool();
 	private final DestinationFinder destinationFinder;
+	private final HostnameFinder hostnameFinder;
 	private final CertificateAuthority certificateAuthority;
 	private final CertificateGenerator certificateGenerator;
 	private final Map<CertificateKey, X509Certificate> certificateCache = new HashMap<>();
@@ -76,8 +91,10 @@ public final class MitmServer {
 	private final SSLServerSocket serverSocket;
 	private final SSLSocketFactory childFactory;
 
-	public MitmServer(DestinationFinder destinationFinder, String caPrefix) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+	public MitmServer(DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
 		this.destinationFinder = destinationFinder;
+		this.hostnameFinder = hostnameFinder;
+
 		this.certificateAuthority = new CertificateAuthority(Paths.get(caPrefix + ".crt"), Paths.get(caPrefix + ".key"));
 		AsymmetricCipherKeyPair keyPair = new KeyPairGenerator().generate();
 		this.certificateGenerator = new CertificateGenerator(certificateAuthority, keyPair);
@@ -119,8 +136,7 @@ public final class MitmServer {
 			 */
 			Certificate[] chain = other.getSession().getPeerCertificates();
 			X509Certificate leaf = (X509Certificate) chain[0];
-			String cn = CertificateUtils.extractCn(leaf);
-			String[] sans = CertificateUtils.extractSans(leaf);
+			CertificateKey key = hostnameFinder.getHostname(leaf);
 
 			/*
 			 * Try to check if we have generated a certificate with the same CN
@@ -130,10 +146,9 @@ public final class MitmServer {
 			 * message to warn about the new certificate being untrusted ad
 			 * infinitum).
 			 */
-			CertificateKey key = new CertificateKey(cn, sans);
 			X509Certificate fakeLeaf = certificateCache.get(key);
 			if (fakeLeaf == null) {
-				fakeLeaf = certificateGenerator.generateJca(cn, sans);
+				fakeLeaf = certificateGenerator.generateJca(key.getCn(), key.getSans());
 				certificateCache.put(key, fakeLeaf);
 			}
 

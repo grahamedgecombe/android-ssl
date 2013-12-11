@@ -11,6 +11,14 @@ public final class CertificateKey {
 		this.sans = sans;
 	}
 
+	public String getCn() {
+		return cn;
+	}
+
+	public String[] getSans() {
+		return sans;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
