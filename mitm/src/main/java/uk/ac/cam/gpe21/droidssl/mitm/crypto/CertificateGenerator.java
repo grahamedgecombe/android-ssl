@@ -10,11 +10,6 @@ import org.bouncycastle.cert.bc.BcX509ExtensionUtils;
 import org.bouncycastle.cert.bc.BcX509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.crypto.util.PrivateKeyFactory;
-import org.bouncycastle.crypto.util.PublicKeyFactory;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
@@ -23,9 +18,6 @@ import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
@@ -35,38 +27,13 @@ import java.util.TimeZone;
 public final class CertificateGenerator {
 	private static final TimeZone UTC = TimeZone.getTimeZone("Etc/UTC");
 
-	private final X509CertificateHolder caCertificate;
-	private final X509Certificate jcaCaCertificate;
-	private final AsymmetricKeyParameter caPublicKey;
-	private final AsymmetricKeyParameter caPrivateKey;
+	private final CertificateAuthority ca;
 	private final AsymmetricCipherKeyPair keyPair;
 	private BigInteger serial = BigInteger.ZERO;
 
-	public CertificateGenerator(Path caCertificateFile, Path caKeyFile, AsymmetricCipherKeyPair keyPair) throws IOException, CertificateException {
+	public CertificateGenerator(CertificateAuthority ca, AsymmetricCipherKeyPair keyPair) throws IOException, CertificateException {
+		this.ca = ca;
 		this.keyPair = keyPair;
-
-		try (PEMParser parser = new PEMParser(Files.newBufferedReader(caCertificateFile, StandardCharsets.UTF_8))) {
-			Object object = parser.readObject();
-			if (!(object instanceof X509CertificateHolder))
-				throw new IOException("Failed to read CA certificate file");
-
-			caCertificate = (X509CertificateHolder) object;
-			jcaCaCertificate = new JcaX509CertificateConverter().getCertificate(caCertificate);
-		}
-
-		try (PEMParser parser = new PEMParser(Files.newBufferedReader(caKeyFile, StandardCharsets.UTF_8))) {
-			Object object = parser.readObject();
-			if (!(object instanceof PEMKeyPair))
-				throw new IOException("Failed to read CA key file");
-
-			PEMKeyPair pair = (PEMKeyPair) object;
-			caPublicKey = PublicKeyFactory.createKey(pair.getPublicKeyInfo());
-			caPrivateKey = PrivateKeyFactory.createKey(pair.getPrivateKeyInfo());
-		}
-	}
-
-	public X509Certificate getCaCertificate() {
-		return jcaCaCertificate;
 	}
 
 	public X509Certificate generateJca(String cn, String[] sans) {
@@ -95,7 +62,7 @@ public final class CertificateGenerator {
 			X500Name subject = new X500NameBuilder().addRDN(BCStyle.CN, cn).build();
 
 			BcX509ExtensionUtils utils = new BcX509ExtensionUtils();
-			X509v3CertificateBuilder builder = new BcX509v3CertificateBuilder(caCertificate, serial, notBefore.getTime(), notAfter.getTime(), subject, keyPair.getPublic());
+			X509v3CertificateBuilder builder = new BcX509v3CertificateBuilder(ca.getCertificate(), serial, notBefore.getTime(), notAfter.getTime(), subject, keyPair.getPublic());
 
 			/* subjectAlernativeName extension */
 			if (sans.length > 0) {
@@ -113,7 +80,7 @@ public final class CertificateGenerator {
 			builder.addExtension(Extension.subjectKeyIdentifier, false, utils.createSubjectKeyIdentifier(keyPair.getPublic()));
 
 			/* authorityKeyIdentifier extension */
-			builder.addExtension(Extension.authorityKeyIdentifier, false, utils.createAuthorityKeyIdentifier(caPublicKey));
+			builder.addExtension(Extension.authorityKeyIdentifier, false, utils.createAuthorityKeyIdentifier(ca.getPublicKey()));
 
 			/* keyUsage extension */
 			int usage = KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.keyAgreement;
@@ -126,7 +93,7 @@ public final class CertificateGenerator {
 			/* create the signer */
 			AlgorithmIdentifier signatureAlgorithm = new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
 			AlgorithmIdentifier digestAlgorithm = new DefaultDigestAlgorithmIdentifierFinder().find(signatureAlgorithm);
-			ContentSigner signer = new BcRSAContentSignerBuilder(signatureAlgorithm, digestAlgorithm).build(caPrivateKey);
+			ContentSigner signer = new BcRSAContentSignerBuilder(signatureAlgorithm, digestAlgorithm).build(ca.getPrivateKey());
 
 			/* build and sign the certificate */
 			return builder.build(signer);

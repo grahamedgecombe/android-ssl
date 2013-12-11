@@ -28,13 +28,17 @@ import java.util.concurrent.Executors;
 public final class MitmServer {
 	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
 		OptionParser parser = new OptionParser();
+
 		parser.accepts("fixed").withRequiredArg();
 		parser.accepts("nat");
 		parser.accepts("standard");
 
-		OptionSet set = parser.parse(args);
-		DestinationFinder destinationFinder;
+		parser.accepts("trusted");
+		parser.accepts("untrusted");
 
+		OptionSet set = parser.parse(args);
+
+		DestinationFinder destinationFinder;
 		if (set.has("fixed")) {
 			String address = (String) set.valueOf("fixed");
 			destinationFinder = new FixedDestinationFinder(SocketAddressParser.parse(address));
@@ -48,27 +52,36 @@ public final class MitmServer {
 			return;
 		}
 
-		MitmServer server = new MitmServer(destinationFinder);
+		String caPrefix;
+		if (set.has("trusted")) {
+			caPrefix = "trusted";
+		} else if (set.has("untrusted")) {
+			caPrefix = "untrusted";
+		} else {
+			System.err.println("Either --trusted or --untrusted must be specified.");
+			System.exit(1);
+			return;
+		}
+
+		MitmServer server = new MitmServer(destinationFinder, caPrefix);
 		server.start();
 	}
 
 	private final Executor executor = Executors.newCachedThreadPool();
 	private final DestinationFinder destinationFinder;
+	private final CertificateAuthority certificateAuthority;
 	private final CertificateGenerator certificateGenerator;
 	private final Map<CertificateKey, X509Certificate> certificateCache = new HashMap<>();
 	private final MitmKeyManager keyManager;
 	private final SSLServerSocket serverSocket;
 	private final SSLSocketFactory childFactory;
 
-	public MitmServer(DestinationFinder destinationFinder) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+	public MitmServer(DestinationFinder destinationFinder, String caPrefix) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
 		this.destinationFinder = destinationFinder;
-
-		KeyPairGenerator keyGenerator = new KeyPairGenerator();
-		AsymmetricCipherKeyPair keyPair = keyGenerator.generate();
-
-		this.certificateGenerator = new CertificateGenerator(Paths.get("ca.crt"), Paths.get("ca.key"), keyPair);
-
-		this.keyManager = new MitmKeyManager(certificateGenerator.getCaCertificate(), KeyUtils.convertToJca(keyPair).getPrivate());
+		this.certificateAuthority = new CertificateAuthority(Paths.get(caPrefix + ".crt"), Paths.get(caPrefix + ".key"));
+		AsymmetricCipherKeyPair keyPair = new KeyPairGenerator().generate();
+		this.certificateGenerator = new CertificateGenerator(certificateAuthority, keyPair);
+		this.keyManager = new MitmKeyManager(certificateAuthority.getJcaCertificate(), KeyUtils.convertToJca(keyPair).getPrivate());
 
 		SSLContext context = SSLContext.getInstance("TLS");
 		context.init(new KeyManager[] {

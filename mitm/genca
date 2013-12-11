@@ -1,3 +1,6 @@
 #!/bin/sh -e
-openssl genrsa -out ca.key 2048
-openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
+openssl genrsa -out trusted.key 2048
+openssl req -new -x509 -days 3650 -key trusted.key -out trusted.crt
+
+openssl genrsa -out untrusted.key 2048
+openssl req -new -x509 -days 3650 -key untrusted.key -out untrusted.crt
