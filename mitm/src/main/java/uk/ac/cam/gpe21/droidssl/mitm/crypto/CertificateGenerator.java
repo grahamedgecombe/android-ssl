@@ -103,25 +103,25 @@ public final class CertificateGenerator {
 				for (int i = 0; i < names.length; i++) {
 					names[i] = new GeneralName(GeneralName.dNSName, sans[i]);
 				}
-				builder.addExtension(X509Extension.subjectAlternativeName, false, new GeneralNames(names));
+				builder.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
 			}
 
 			/* basicConstraints extension */
-			builder.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(false));
+			builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(false));
 
 			/* subjectKeyIdentifier extension */
-			builder.addExtension(X509Extension.subjectKeyIdentifier, false, utils.createSubjectKeyIdentifier(keyPair.getPublic()));
+			builder.addExtension(Extension.subjectKeyIdentifier, false, utils.createSubjectKeyIdentifier(keyPair.getPublic()));
 
 			/* authorityKeyIdentifier extension */
-			builder.addExtension(X509Extension.authorityKeyIdentifier, false, utils.createAuthorityKeyIdentifier(caPublicKey));
+			builder.addExtension(Extension.authorityKeyIdentifier, false, utils.createAuthorityKeyIdentifier(caPublicKey));
 
 			/* keyUsage extension */
 			int usage = KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.keyAgreement;
-			builder.addExtension(X509Extension.keyUsage, true, new KeyUsage(usage));
+			builder.addExtension(Extension.keyUsage, true, new KeyUsage(usage));
 
 			/* extendedKeyUsage extension */
 			KeyPurposeId[] usages = { KeyPurposeId.id_kp_serverAuth };
-			builder.addExtension(X509Extension.extendedKeyUsage, false, new ExtendedKeyUsage(usages));
+			builder.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(usages));
 
 			/* create the signer */
 			AlgorithmIdentifier signatureAlgorithm = new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
