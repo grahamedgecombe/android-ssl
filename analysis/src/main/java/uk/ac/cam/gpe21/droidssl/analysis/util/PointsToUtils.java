@@ -13,14 +13,14 @@ public final class PointsToUtils {
 				@Override
 				public void caseRefType(RefType type) {
 					VulnerabilityTag tag = (VulnerabilityTag) type.getSootClass().getTag(tagName);
-					if (tag.getState() == VulnerabilityState.VULNERABLE)
+					if (tag != null && tag.getState() == VulnerabilityState.VULNERABLE)
 						box[0] = true;
 				}
 
 				@Override
 				public void caseAnySubType(AnySubType type) {
 					VulnerabilityTag tag = (VulnerabilityTag) type.getBase().getSootClass().getTag(tagName);
-					if (tag.getState() == VulnerabilityState.VULNERABLE)
+					if (tag != null && tag.getState() == VulnerabilityState.VULNERABLE)
 						box[0] = true;
 				}
 
@@ -40,14 +40,14 @@ public final class PointsToUtils {
 				@Override
 				public void caseRefType(RefType type) {
 					VulnerabilityTag tag = (VulnerabilityTag) type.getSootClass().getTag(tagName);
-					if (tag.getState() != VulnerabilityState.SAFE)
+					if (tag != null && tag.getState() != VulnerabilityState.SAFE)
 						box[0] = false;
 				}
 
 				@Override
 				public void caseAnySubType(AnySubType type) {
 					VulnerabilityTag tag = (VulnerabilityTag) type.getBase().getSootClass().getTag(tagName);
-					if (tag.getState() != VulnerabilityState.SAFE)
+					if (tag != null && tag.getState() != VulnerabilityState.SAFE)
 						box[0] = false;
 				}
 
