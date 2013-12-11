@@ -96,6 +96,7 @@ project(':mitm') {
 		compile group: 'net.java.dev.jna', name: 'jna', version: '4.0.0'
 		compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.50'
 		compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.50'
+		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.5'
 	}
 
 	fatJar {

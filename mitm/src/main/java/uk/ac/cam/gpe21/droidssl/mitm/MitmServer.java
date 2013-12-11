@@ -1,10 +1,15 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.*;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.KeyPairGenerator;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.DestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.FixedDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.NatDestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.StandardDestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.util.SocketAddressParser;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -22,19 +27,42 @@ import java.util.concurrent.Executors;
 
 public final class MitmServer {
 	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
-		MitmServer server = new MitmServer();
+		OptionParser parser = new OptionParser();
+		parser.accepts("fixed").withRequiredArg();
+		parser.accepts("nat");
+		parser.accepts("standard");
+
+		OptionSet set = parser.parse(args);
+		DestinationFinder destinationFinder;
+
+		if (set.has("fixed")) {
+			String address = (String) set.valueOf("fixed");
+			destinationFinder = new FixedDestinationFinder(SocketAddressParser.parse(address));
+		} else if (set.has("nat")) {
+			destinationFinder = new NatDestinationFinder();
+		} else if (set.has("standard")) {
+			destinationFinder = new StandardDestinationFinder();
+		} else {
+			System.err.println("Either --fixed, --nat or --standard must be specified.");
+			System.exit(1);
+			return;
+		}
+
+		MitmServer server = new MitmServer(destinationFinder);
 		server.start();
 	}
 
 	private final Executor executor = Executors.newCachedThreadPool();
-	private final DestinationFinder destinationFinder = new NatDestinationFinder();
+	private final DestinationFinder destinationFinder;
 	private final CertificateGenerator certificateGenerator;
 	private final Map<CertificateKey, X509Certificate> certificateCache = new HashMap<>();
 	private final MitmKeyManager keyManager;
 	private final SSLServerSocket serverSocket;
 	private final SSLSocketFactory childFactory;
 
-	public MitmServer() throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+	public MitmServer(DestinationFinder destinationFinder) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+		this.destinationFinder = destinationFinder;
+
 		KeyPairGenerator keyGenerator = new KeyPairGenerator();
 		AsymmetricCipherKeyPair keyPair = keyGenerator.generate();
 
