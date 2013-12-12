@@ -4,8 +4,18 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.openssl.PEMParser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -13,6 +23,26 @@ import java.util.List;
 
 public final class CertificateUtils {
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+	public static X509Certificate readCertificate(Path path) throws IOException {
+		try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+			return readCertificate(reader);
+		}
+	}
+
+	public static X509Certificate readCertificate(Reader reader) throws IOException {
+		// TODO share with CertificateAuthority's own implementation
+		try (PEMParser parser = new PEMParser(reader)) {
+			Object object = parser.readObject();
+			if (!(object instanceof X509CertificateHolder))
+				throw new IOException("File does not contain a certificate");
+
+			X509CertificateHolder certificate = (X509CertificateHolder) object;
+			return new JcaX509CertificateConverter().getCertificate(certificate);
+		} catch (CertificateException ex) {
+			throw new IOException(ex);
+		}
+	}
 
 	public static String extractCn(X509Certificate certificate) {
 		X500Name dn = JcaX500NameUtil.getSubject(certificate);
