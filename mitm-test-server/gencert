@@ -1,0 +1,7 @@
+#!/bin/sh -e
+openssl genrsa -out ca.key 2048
+openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
+
+openssl genrsa -out cert.key 2048
+openssl req -new -key cert.key -out cert.csr
+openssl x509 -req -days 3650 -in cert.csr -CA ca.crt -CAkey ca.key -CAserial ca.srl -CAcreateserial -out cert.crt
