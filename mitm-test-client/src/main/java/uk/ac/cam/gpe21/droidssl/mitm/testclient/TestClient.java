@@ -4,6 +4,8 @@ import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateUtils;
 
 import javax.net.ssl.*;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -36,9 +38,18 @@ public final class TestClient {
 	}
 
 	public void start() throws IOException {
-		SSLSocket socket = (SSLSocket) factory.createSocket(address.getAddress(), address.getPort());
-		socket.startHandshake();
-		if (!hostnameVerifier.verify(address.getHostName(), socket.getSession()))
-			throw new IOException();
+		try (SSLSocket socket = (SSLSocket) factory.createSocket(address.getAddress(), address.getPort())) {
+			socket.startHandshake();
+			if (!hostnameVerifier.verify(address.getHostName(), socket.getSession()))
+				throw new IOException();
+
+			try (InputStream is = socket.getInputStream();
+			     OutputStream os = socket.getOutputStream()) {
+				os.write(0xFF);
+
+				if (is.read() != 0xFF)
+					throw new IOException("Server did not echo back 0xFF byte");
+			}
+		}
 	}
 }
