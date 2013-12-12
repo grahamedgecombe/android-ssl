@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm.crypto;
+package uk.ac.cam.gpe21.droidssl.mitm.crypto.cert;
 
 import java.util.Arrays;
 

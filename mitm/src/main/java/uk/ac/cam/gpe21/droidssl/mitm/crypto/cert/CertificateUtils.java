@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm.crypto;
+package uk.ac.cam.gpe21.droidssl.mitm.crypto.cert;
 
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;

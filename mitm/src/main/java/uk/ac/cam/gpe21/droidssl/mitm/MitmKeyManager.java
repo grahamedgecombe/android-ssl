@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm.crypto;
+package uk.ac.cam.gpe21.droidssl.mitm;
 
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;

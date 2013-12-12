@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm.crypto;
+package uk.ac.cam.gpe21.droidssl.mitm.crypto.key;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;

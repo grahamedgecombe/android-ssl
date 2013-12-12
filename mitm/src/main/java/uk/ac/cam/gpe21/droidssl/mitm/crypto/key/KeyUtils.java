@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm.crypto;
+package uk.ac.cam.gpe21.droidssl.mitm.crypto.key;
 
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;

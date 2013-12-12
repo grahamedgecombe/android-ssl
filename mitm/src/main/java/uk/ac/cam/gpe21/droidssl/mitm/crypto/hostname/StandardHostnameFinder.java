@@ -1,7 +1,7 @@
 package uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname;
 
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.CertificateKey;
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.CertificateUtils;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateKey;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateUtils;
 
 import java.security.cert.X509Certificate;
 
