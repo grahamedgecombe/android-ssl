@@ -5,10 +5,13 @@ import joptsimple.OptionSet;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.*;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.KeyPairGenerator;
-import uk.ac.cam.gpe21.droidssl.mitm.socket.DestinationFinder;
-import uk.ac.cam.gpe21.droidssl.mitm.socket.FixedDestinationFinder;
-import uk.ac.cam.gpe21.droidssl.mitm.socket.NatDestinationFinder;
-import uk.ac.cam.gpe21.droidssl.mitm.socket.StandardDestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname.FakeHostnameFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname.HostnameFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname.StandardHostnameFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.FixedDestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.NatDestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.StandardDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.util.SocketAddressParser;
 
 import javax.net.ssl.*;

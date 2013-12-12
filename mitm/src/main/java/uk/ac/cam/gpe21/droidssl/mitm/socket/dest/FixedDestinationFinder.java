@@ -1,4 +1,4 @@
-package uk.ac.cam.gpe21.droidssl.mitm.socket;
+package uk.ac.cam.gpe21.droidssl.mitm.socket.dest;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
