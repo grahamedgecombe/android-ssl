@@ -66,7 +66,7 @@ test_case() {
   elif ! $expected_result && [ $? -ne 0 ]; then
     echo pass
   else
-    echo "fail ($trust cert ${hostname/-/ })"
+    echo "fail ($trust cert, ${hostname/-/ })"
     failed=1
   fi
   popd >/dev/null
