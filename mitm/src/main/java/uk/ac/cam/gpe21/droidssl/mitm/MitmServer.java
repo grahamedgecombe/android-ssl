@@ -4,8 +4,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateAuthority;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateGenerator;
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateKey;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname.FakeHostnameFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname.HostnameFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname.StandardHostnameFinder;
@@ -17,17 +17,16 @@ import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.NatDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.StandardDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.util.SocketAddressParser;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.file.Paths;
 import java.security.*;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -91,97 +90,63 @@ public final class MitmServer {
 	private final DestinationFinder destinationFinder;
 	private final HostnameFinder hostnameFinder;
 	private final CertificateAuthority certificateAuthority;
-	private final CertificateGenerator certificateGenerator;
-	private final Map<CertificateKey, X509Certificate> certificateCache = new HashMap<>();
-	private final MitmKeyManager keyManager;
-	private final SSLServerSocket serverSocket;
-	private final SSLSocketFactory childFactory;
+	private final AsymmetricCipherKeyPair keyPair;
+	private final PrivateKey privateKey;
+	private final CertificateCache certificateCache;
+	private final ServerSocket serverSocket;
+	private final SSLSocketFactory permissiveSocketFactory;
 
 	public MitmServer(DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
 		this.destinationFinder = destinationFinder;
 		this.hostnameFinder = hostnameFinder;
-
 		this.certificateAuthority = new CertificateAuthority(Paths.get(caPrefix + ".crt"), Paths.get(caPrefix + ".key"));
-		AsymmetricCipherKeyPair keyPair = new KeyPairGenerator().generate();
-		this.certificateGenerator = new CertificateGenerator(certificateAuthority, keyPair);
-		this.keyManager = new MitmKeyManager(certificateAuthority.getJcaCertificate(), KeyUtils.convertToJca(keyPair).getPrivate());
+		this.keyPair = new KeyPairGenerator().generate();
+		this.privateKey = KeyUtils.convertToJca(keyPair).getPrivate();
+		this.certificateCache = new CertificateCache(new CertificateGenerator(certificateAuthority, keyPair));
+		this.serverSocket = new ServerSocket(8443);
+		this.permissiveSocketFactory = createPermissiveSocketFactory();
+	}
 
-		SSLContext context = SSLContext.getInstance("TLS");
-		context.init(new KeyManager[] {
-			keyManager
-		}, null, null);
-		this.serverSocket = (SSLServerSocket) context.getServerSocketFactory().createServerSocket(8443);
-
-		SSLContext childContext = SSLContext.getInstance("TLS");
-		childContext.init(null, new TrustManager[] {
+	private SSLSocketFactory createPermissiveSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+		SSLContext ctx = SSLContext.getInstance("TLS");
+		ctx.init(null, new TrustManager[] {
 			new PermissiveTrustManager()
 		}, null);
-		this.childFactory = childContext.getSocketFactory();
+		return ctx.getSocketFactory();
 	}
 
 	public void start() throws IOException, CertificateException {
 		while (true) {
-			SSLSocket socket = (SSLSocket) serverSocket.accept();
-			try {
-				/*
-				 * Find the address of the target server and connect to it.
-				 */
-				InetSocketAddress addr = destinationFinder.getDestination(socket);
-				SSLSocket other = (SSLSocket) childFactory.createSocket(addr.getAddress(), addr.getPort());
-
-				/*
-				 * Normally the handshake is only started when reading or writing
-				 * the first byte of data. However, we start it immediately so we
-				 * can get the server's real certificate before we start relaying
-				 * data between the server and client.
-				 */
-				other.startHandshake();
-
-				/*
-				 * Extract common name and subjectAltNames from the certificate.
-				 */
-				Certificate[] chain = other.getSession().getPeerCertificates();
-				X509Certificate leaf = (X509Certificate) chain[0];
-				CertificateKey key = hostnameFinder.getHostname(leaf);
-
-				/*
-				 * Try to check if we have generated a certificate with the same CN
-				 * & SANs already - if so, re-use it. (If we don't re-use it, e.g.
-				 * a web browser thinks the certificate is different once we ignore
-				 * the untrusted issuer error message, and we'll get another
-				 * message to warn about the new certificate being untrusted ad
-				 * infinitum).
-				 */
-				X509Certificate fakeLeaf = certificateCache.get(key);
-				if (fakeLeaf == null) {
-					fakeLeaf = certificateGenerator.generateJca(key.getCn(), key.getSans());
-					certificateCache.put(key, fakeLeaf);
-				}
-
-				/*
-				 * Start the handshake with the client using the faked certificate.
-				 */
-				keyManager.setCertificate(socket, fakeLeaf);
-				socket.startHandshake();
-
-				/*
-				 * Start two threads which relay data between the client and server
-				 * in both directions, while dumping the decrypted data to the
-				 * console.
-				 */
-				IoCopyRunnable clientToServerCopier = new IoCopyRunnable(socket.getInputStream(), other.getOutputStream());
-				IoCopyRunnable serverToClientCopier = new IoCopyRunnable(other.getInputStream(), socket.getOutputStream());
-
-				executor.execute(clientToServerCopier);
-				executor.execute(serverToClientCopier);
-			} catch (SSLHandshakeException ex) {
-				// TODO this is temporary to fix the tests
-				// eventually we will want to be smarter (check if the
-				// handshake for 'socket' or 'other') failed and fall back to
-				// just forwarding the bytes around directly if possible (e.g.
-				// in case the destination server isn't actually using SSL but
-				// is instead using plaintext communication)
-			}
+			Socket socket = serverSocket.accept();
+			executor.execute(new HandshakeRunnable(this, socket));
 		}
+	}
+
+	public Executor getExecutor() {
+		return executor;
+	}
+
+	public DestinationFinder getDestinationFinder() {
+		return destinationFinder;
+	}
+
+	public HostnameFinder getHostnameFinder() {
+		return hostnameFinder;
+	}
+
+	public CertificateAuthority getCertificateAuthority() {
+		return certificateAuthority;
+	}
+
+	public PrivateKey getPrivateKey() {
+		return privateKey;
+	}
+
+	public CertificateCache getCertificateCache() {
+		return certificateCache;
+	}
+
+	public SSLSocketFactory getPermissiveSocketFactory() {
+		return permissiveSocketFactory;
 	}
 }
