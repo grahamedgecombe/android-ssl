@@ -19,6 +19,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public final class CertificateUtils {
@@ -58,8 +59,12 @@ public final class CertificateUtils {
 
 	public static String[] extractSans(X509Certificate certificate) {
 		try {
+			Collection<List<?>> pairs = certificate.getSubjectAlternativeNames();
+			if (pairs == null)
+				return EMPTY_STRING_ARRAY;
+
 			List<String> sans = new ArrayList<>();
-			for (List<?> pair : certificate.getSubjectAlternativeNames()) {
+			for (List<?> pair : pairs) {
 				int type = (Integer) pair.get(0);
 				if (type == 2) { // TODO fix magic number!
 					String san = (String) pair.get(1);
