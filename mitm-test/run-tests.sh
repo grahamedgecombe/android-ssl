@@ -97,29 +97,29 @@ test_case untrusted unmatching-hostname true
 stop_mitm_server
 
 # test cases using untrusted certificate with matching hostname
-echo "MITM - untrusted cert, matching hostname (TrustManager vulnerable):"
+echo "MITM - untrusted cert, matching hostname:"
 start_mitm_server untrusted matching-hostname
-test_case trusted   matching-hostname   true
+test_case trusted   matching-hostname   false
 test_case untrusted matching-hostname   true
-test_case trusted   unmatching-hostname true
+test_case trusted   unmatching-hostname false
 test_case untrusted unmatching-hostname true
 stop_mitm_server
 
 # test cases using trusted certificate with unmatching hostname
-echo "MITM - trusted cert, unmatching hostname (HostnameVerifier vulnerable)"
+echo "MITM - trusted cert, unmatching hostname"
 start_mitm_server trusted unmatching-hostname
-test_case trusted   matching-hostname   true
-test_case untrusted matching-hostname   true
+test_case trusted   matching-hostname   false
+test_case untrusted matching-hostname   false
 test_case trusted   unmatching-hostname true
 test_case untrusted unmatching-hostname true
 stop_mitm_server
 
 # test cases using untrusted certificate with unmatching hostname
-echo "MITM - untrusted cert, unmatching hostname (TrustManager & HostnameVerifier vulnerable)"
+echo "MITM - untrusted cert, unmatching hostname:"
 start_mitm_server untrusted unmatching-hostname
-test_case trusted   matching-hostname   true
-test_case untrusted matching-hostname   true
-test_case trusted   unmatching-hostname true
+test_case trusted   matching-hostname   false
+test_case untrusted matching-hostname   false
+test_case trusted   unmatching-hostname false
 test_case untrusted unmatching-hostname true
 
 # stop everything - we're done
