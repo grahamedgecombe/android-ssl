@@ -1,5 +1,7 @@
 package uk.ac.cam.gpe21.droidssl.mitm.testclient;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateUtils;
 
 import javax.net.ssl.*;
@@ -24,8 +26,37 @@ public final class TestClient {
 			CertificateUtils.readCertificate(Paths.get("trusted.crt"))
 		};
 
-		TrustManager trustManager = new SecureTrustManager(certificateAuthorities);
-		HostnameVerifier hostnameVerifier = new SecureHostnameVerifier();
+		OptionParser parser = new OptionParser();
+
+		parser.accepts("trusted");
+		parser.accepts("untrusted");
+
+		parser.accepts("matching-hostname");
+		parser.accepts("unmatching-hostname");
+
+		OptionSet set = parser.parse(args);
+
+		TrustManager trustManager;
+		if (set.has("trusted")) {
+			trustManager = new SecureTrustManager(certificateAuthorities);
+		} else if (set.has("untrusted")) {
+			trustManager = new PermissiveTrustManager();
+		} else {
+			System.err.println("Either --trusted or --untrusted must be specified.");
+			System.exit(1);
+			return;
+		}
+
+		HostnameVerifier hostnameVerifier;
+		if (set.has("matching-hostname")) {
+			hostnameVerifier = new SecureHostnameVerifier();
+		} else if (set.has("unmatching-hostname")) {
+			hostnameVerifier = new PermissiveHostnameVerifier();
+		} else {
+			System.err.println("Either --matching-hostname or --unmatching-hostname must be specified.");
+			System.exit(1);
+			return;
+		}
 
 		TestClient client = new TestClient(new InetSocketAddress("127.0.0.1", 12345), trustManager, hostnameVerifier);
 		try {

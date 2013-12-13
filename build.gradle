@@ -134,6 +134,7 @@ project(':mitm-test-client') {
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common');
+		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.5'
 	}
 
 	fatJar {
