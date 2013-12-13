@@ -89,7 +89,7 @@ test_case untrusted unmatching-hostname true
 # test cases using trusted certificate with matching hostname
 echo "MITM - trusted cert, matching hostname:"
 start_iptables
-start_mitm_server untrusted unmatching-hostname
+start_mitm_server trusted matching-hostname
 test_case trusted   matching-hostname   true
 test_case untrusted matching-hostname   true
 test_case trusted   unmatching-hostname true
