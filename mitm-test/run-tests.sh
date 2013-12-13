@@ -10,10 +10,6 @@ mitm_port=8443
 mitm_user=nobody
 failed=0
 
-# on failure shut down any remaining children
-# TODO also clear up iptables rules?
-trap 'sudo kill -9 0' SIGINT SIGTERM EXIT
-
 # functions for controlling the MITM server
 start_mitm_server() {
   local trust=$1
