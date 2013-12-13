@@ -40,6 +40,9 @@ public final class Types {
 	public static final RefType KEY_MANAGER = RefType.v("javax.net.ssl.KeyManager");
 	public static final ArrayType KEY_MANAGER_ARRAY = ArrayType.v(KEY_MANAGER, 1);
 
+	public static final RefType URL = RefType.v("java.net.URL");
+	public static final RefType URL_CONNECTION = RefType.v("java.net.URLConnection");
+	public static final RefType HTTP_URL_CONNECTION = RefType.v("java.net.HttpURLConnection");
 	public static final RefType HTTPS_URL_CONNECTION = RefType.v("javax.net.ssl.HttpsURLConnection");
 
 	private Types() {
