@@ -3,6 +3,7 @@ package uk.ac.cam.gpe21.droidssl.mitm;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.PermissiveTrustManager;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateAuthority;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateGenerator;
