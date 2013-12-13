@@ -18,6 +18,8 @@ import java.util.concurrent.Executors;
 
 public final class TestServer {
 	public static void main(String[] args) throws IOException, KeyManagementException, NoSuchAlgorithmException {
+		System.setProperty("java.net.preferIPv4Stack" ,"true");
+
 		X509Certificate leaf = CertificateUtils.readCertificate(Paths.get("cert.crt"));
 		X509Certificate ca = CertificateUtils.readCertificate(Paths.get("ca.crt"));
 

@@ -6,19 +6,28 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
 public final class TestClient {
 	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException {
-		TrustManager trustManager = new SecureTrustManager(CertificateUtils.readCertificate(Paths.get("ca.crt")));
+		System.setProperty("java.net.preferIPv4Stack" ,"true");
+
+		Certificate[] certificateAuthorities = {
+			CertificateUtils.readCertificate(Paths.get("ca.crt")),
+			CertificateUtils.readCertificate(Paths.get("trusted.crt"))
+		};
+
+		TrustManager trustManager = new SecureTrustManager(certificateAuthorities);
 		HostnameVerifier hostnameVerifier = new SecureHostnameVerifier();
 
-		TestClient client = new TestClient(new InetSocketAddress("localhost", 12345), trustManager, hostnameVerifier);
+		TestClient client = new TestClient(new InetSocketAddress("127.0.0.1", 12345), trustManager, hostnameVerifier);
 		client.start();
 	}
 
@@ -40,7 +49,7 @@ public final class TestClient {
 	public void start() throws IOException {
 		try (SSLSocket socket = (SSLSocket) factory.createSocket(address.getAddress(), address.getPort())) {
 			socket.startHandshake();
-			if (!hostnameVerifier.verify(address.getHostName(), socket.getSession()))
+			if (!hostnameVerifier.verify("localhost", socket.getSession()))
 				throw new IOException();
 
 			try (InputStream is = socket.getInputStream();

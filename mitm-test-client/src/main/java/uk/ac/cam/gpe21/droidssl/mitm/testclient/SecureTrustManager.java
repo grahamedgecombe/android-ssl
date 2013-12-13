@@ -14,10 +14,13 @@ import java.security.cert.X509Certificate;
 public final class SecureTrustManager implements X509TrustManager {
 	private final X509TrustManager trustManager;
 
-	public SecureTrustManager(Certificate ca) throws KeyStoreException, NoSuchAlgorithmException, IOException, CertificateException {
+	public SecureTrustManager(Certificate[] certificateAuthorities) throws KeyStoreException, NoSuchAlgorithmException, IOException, CertificateException {
 		KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
 		store.load(null);
-		store.setCertificateEntry("ca", ca);
+
+		for (int i = 0; i < certificateAuthorities.length; i++) {
+			store.setCertificateEntry("certificateAuthority" + i, certificateAuthorities[i]);
+		}
 
 		TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		factory.init(store);
