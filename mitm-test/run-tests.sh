@@ -20,7 +20,7 @@ start_mitm_server() {
   local hostname=$2
 
   pushd mitm >/dev/null
-  sudo -u $mitm_user java -jar build/libs/mitm-$version.jar --nat --$trust --$hostname &
+  sudo -u $mitm_user java -jar build/libs/mitm-$version.jar --nat --$trust --$hostname >/dev/null &
   mitm_server_pid=$!
   popd >/dev/null
 }
