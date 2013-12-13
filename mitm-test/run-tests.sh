@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 # change working directory to the root of the project
-cd $(realpath $(dirname $0)/..)
+cd $(readlink -f $(dirname $0)/..)
 
 # global variables
 version=1.0.0
