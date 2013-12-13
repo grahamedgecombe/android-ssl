@@ -28,7 +28,12 @@ public final class TestClient {
 		HostnameVerifier hostnameVerifier = new SecureHostnameVerifier();
 
 		TestClient client = new TestClient(new InetSocketAddress("127.0.0.1", 12345), trustManager, hostnameVerifier);
-		client.start();
+		try {
+			client.start();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			System.exit(1); // to indicate the handshake failed
+		}
 	}
 
 	private final InetSocketAddress address;
