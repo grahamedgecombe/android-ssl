@@ -22,6 +22,7 @@ start_mitm_server() {
   pushd mitm >/dev/null
   sudo -u $mitm_user java -jar build/libs/mitm-$version.jar --nat --$trust --$hostname >/dev/null &
   mitm_server_pid=$!
+  sleep 1 # wait a bit to ensure the socket has started listening
   popd >/dev/null
 }
 
@@ -34,6 +35,7 @@ stop_mitm_server() {
 start_test_server() {
   pushd mitm-test-server >/dev/null
   java -jar build/libs/mitm-test-server-$version.jar &
+  sleep 1 # wait a bit to ensure the socket has started listening
   test_server_pid=$!
   popd >/dev/null
 }
