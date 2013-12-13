@@ -8,7 +8,6 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -16,6 +15,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 public final class TestClient {
 	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException {
@@ -25,11 +25,13 @@ public final class TestClient {
 			CertificateUtils.readCertificate(Paths.get("ca.crt")),
 			CertificateUtils.readCertificate(Paths.get("trusted.crt"))
 		};
+		Certificate pinnedCertificate = CertificateUtils.readCertificate(Paths.get("cert.crt"));
 
 		OptionParser parser = new OptionParser();
 
 		parser.accepts("trusted");
 		parser.accepts("untrusted");
+		parser.accepts("pinned");
 
 		parser.accepts("matching-hostname");
 		parser.accepts("unmatching-hostname");
@@ -41,8 +43,10 @@ public final class TestClient {
 			trustManager = new SecureTrustManager(certificateAuthorities);
 		} else if (set.has("untrusted")) {
 			trustManager = new PermissiveTrustManager();
+		} else if (set.has("pinned")) {
+			trustManager = new PinnedTrustManager((X509Certificate) pinnedCertificate); // TODO can we avoid the cast?
 		} else {
-			System.err.println("Either --trusted or --untrusted must be specified.");
+			System.err.println("Either --trusted, --untrusted or --pinned must be specified.");
 			System.exit(1);
 			return;
 		}

@@ -25,6 +25,7 @@ start_mitm_server() {
 stop_mitm_server() {
   sudo kill $mitm_server_pid
   wait $mitm_server_pid || true
+  sleep 1
 }
 
 # functions for controlling the test server
@@ -39,6 +40,7 @@ start_test_server() {
 stop_test_server() {
   kill $test_server_pid
   wait $test_server_pid || true
+  sleep 1
 }
 
 # functions for adding/removing the iptables rules
@@ -79,8 +81,10 @@ start_test_server
 
 # check connection works in all cases without a MITM
 echo "MITM - disabled:"
+test_case pinned    matching-hostname   true
 test_case trusted   matching-hostname   true
 test_case untrusted matching-hostname   true
+test_case pinned    unmatching-hostname true
 test_case trusted   unmatching-hostname true
 test_case untrusted unmatching-hostname true
 
@@ -88,8 +92,10 @@ test_case untrusted unmatching-hostname true
 echo "MITM - trusted cert, matching hostname:"
 start_iptables
 start_mitm_server trusted matching-hostname
+test_case pinned    matching-hostname   false
 test_case trusted   matching-hostname   true
 test_case untrusted matching-hostname   true
+test_case pinned    unmatching-hostname false
 test_case trusted   unmatching-hostname true
 test_case untrusted unmatching-hostname true
 stop_mitm_server
@@ -97,8 +103,10 @@ stop_mitm_server
 # test cases using untrusted certificate with matching hostname
 echo "MITM - untrusted cert, matching hostname:"
 start_mitm_server untrusted matching-hostname
+test_case pinned    matching-hostname   false
 test_case trusted   matching-hostname   false
 test_case untrusted matching-hostname   true
+test_case pinned    unmatching-hostname false
 test_case trusted   unmatching-hostname false
 test_case untrusted unmatching-hostname true
 stop_mitm_server
@@ -106,8 +114,10 @@ stop_mitm_server
 # test cases using trusted certificate with unmatching hostname
 echo "MITM - trusted cert, unmatching hostname"
 start_mitm_server trusted unmatching-hostname
+test_case pinned    matching-hostname   false
 test_case trusted   matching-hostname   false
 test_case untrusted matching-hostname   false
+test_case pinned    unmatching-hostname false
 test_case trusted   unmatching-hostname true
 test_case untrusted unmatching-hostname true
 stop_mitm_server
@@ -115,8 +125,10 @@ stop_mitm_server
 # test cases using untrusted certificate with unmatching hostname
 echo "MITM - untrusted cert, unmatching hostname:"
 start_mitm_server untrusted unmatching-hostname
+test_case pinned    matching-hostname   false
 test_case trusted   matching-hostname   false
 test_case untrusted matching-hostname   false
+test_case pinned    unmatching-hostname false
 test_case trusted   unmatching-hostname false
 test_case untrusted unmatching-hostname true
 
