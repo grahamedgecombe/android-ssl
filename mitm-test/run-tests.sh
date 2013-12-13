@@ -61,10 +61,13 @@ test_case() {
   local expected_result=$3
 
   pushd mitm-test-client >/dev/null
-  java -jar build/libs/mitm-test-client-$version.jar --$trust --$hostname
-  if $expected_result && [ $? -eq 0 ]; then
+  set +e
+  java -jar build/libs/mitm-test-client-$version.jar --$trust --$hostname 2>/dev/null
+  local actual_result=$?
+  set -e
+  if $expected_result && [ $actual_result -eq 0 ]; then
     echo pass
-  elif ! $expected_result && [ $? -ne 0 ]; then
+  elif ! $expected_result && [ $actual_result -ne 0 ]; then
     echo pass
   else
     echo "fail ($trust cert, ${hostname/-/ })"
