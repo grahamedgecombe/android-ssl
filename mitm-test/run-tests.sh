@@ -18,21 +18,21 @@ start_mitm_server() {
   pushd mitm >/dev/null
   sudo -u $mitm_user java -jar build/libs/mitm-$version.jar --nat --$trust --$hostname >/dev/null &
   mitm_server_pid=$!
-  sleep 1 # wait a bit to ensure the socket has started listening
+  sleep 3 # wait a bit to ensure the socket has started listening
   popd >/dev/null
 }
 
 stop_mitm_server() {
   sudo kill $mitm_server_pid
   wait $mitm_server_pid || true
-  sleep 1
+  sleep 3
 }
 
 # functions for controlling the test server
 start_test_server() {
   pushd mitm-test-server >/dev/null
   java -jar build/libs/mitm-test-server-$version.jar &
-  sleep 1 # wait a bit to ensure the socket has started listening
+  sleep 3 # wait a bit to ensure the socket has started listening
   test_server_pid=$!
   popd >/dev/null
 }
@@ -40,7 +40,7 @@ start_test_server() {
 stop_test_server() {
   kill $test_server_pid
   wait $test_server_pid || true
-  sleep 1
+  sleep 3
 }
 
 # functions for adding/removing the iptables rules
