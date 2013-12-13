@@ -45,11 +45,17 @@ public final class MitmKeyManager implements X509KeyManager {
 
 	@Override
 	public X509Certificate[] getCertificateChain(String alias) {
+		if (!alias.equals("cert"))
+			return null;
+
 		return chain;
 	}
 
 	@Override
 	public PrivateKey getPrivateKey(String alias) {
+		if (!alias.equals("cert"))
+			return null;
+
 		return key;
 	}
 }
