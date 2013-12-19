@@ -172,6 +172,44 @@ project(':mitm-test-server') {
 	}
 }
 
+project(':mitm-test-plain-client') {
+	apply plugin: 'java'
+	apply plugin: 'fatjar'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.11'
+	}
+
+	fatJar {
+		manifest {
+			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testclient.PlainClient'
+		}
+	}
+}
+
+project(':mitm-test-plain-server') {
+	apply plugin: 'java'
+	apply plugin: 'fatjar'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.11'
+	}
+
+	fatJar {
+		manifest {
+			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testserver.PlainServer'
+		}
+	}
+}
+
 project(':test-hv') {
 	apply plugin: 'android'
 	apply plugin: 'idea'

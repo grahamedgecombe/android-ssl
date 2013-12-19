@@ -9,6 +9,14 @@ port=12345
 mitm_port=8443
 mitm_user=nobody
 failed=0
+client_log=$(readlink -f mitm-test/client.log)
+server_log=$(readlink -f mitm-test/server.log)
+mitm_log=$(readlink -f mitm-test/mitm.log)
+
+# truncate log files
+:>$client_log
+:>$server_log
+:>$mitm_log
 
 # functions for controlling the MITM server
 start_mitm_server() {
@@ -16,7 +24,7 @@ start_mitm_server() {
   local hostname=$2
 
   pushd mitm >/dev/null
-  sudo -u $mitm_user java -jar build/libs/mitm-$version.jar --nat --$trust --$hostname >/dev/null &
+  sudo -u $mitm_user java -jar build/libs/mitm-$version.jar --nat --$trust --$hostname &>>$mitm_log &
   mitm_server_pid=$!
   sleep 3 # wait a bit to ensure the socket has started listening
   popd >/dev/null
@@ -31,7 +39,7 @@ stop_mitm_server() {
 # functions for controlling the test server
 start_test_server() {
   pushd mitm-test-server >/dev/null
-  java -jar build/libs/mitm-test-server-$version.jar &
+  java -jar build/libs/mitm-test-server-$version.jar &>>$server_log &
   sleep 3 # wait a bit to ensure the socket has started listening
   test_server_pid=$!
   popd >/dev/null
@@ -40,6 +48,21 @@ start_test_server() {
 stop_test_server() {
   kill $test_server_pid
   wait $test_server_pid || true
+  sleep 3
+}
+
+# functions for controlling the plaintext test server
+start_test_plain_server() {
+  pushd mitm-test-plain-server >/dev/null
+  java -jar build/libs/mitm-test-plain-server-$version.jar &>>$server_log &
+  sleep 3 # wait a bit to ensure the socket has started listening
+  test_plain_server_pid=$!
+  popd >/dev/null
+}
+
+stop_test_plain_server() {
+  kill $test_plain_server_pid
+  wait $test_plain_server_pid || true
   sleep 3
 }
 
@@ -62,7 +85,7 @@ test_case() {
 
   pushd mitm-test-client >/dev/null
   set +e
-  java -jar build/libs/mitm-test-client-$version.jar --$trust --$hostname 2>/dev/null
+  java -jar build/libs/mitm-test-client-$version.jar --$trust --$hostname &>>$client_log
   local actual_result=$?
   set -e
   if $expected_result && [ $actual_result -eq 0 ]; then
@@ -76,7 +99,39 @@ test_case() {
   popd >/dev/null
 }
 
-# let's go!
+# code common for each plaintext test case
+plaintext_test_case() {
+  pushd mitm-test-plain-client >/dev/null
+  set +e
+  java -jar build/libs/mitm-test-plain-client-$version.jar &>>$client_log
+  local actual_result=$?
+  set -e
+  if [ $actual_result -eq 0 ]; then
+    echo pass
+  else
+    echo fail
+    failed=1
+  fi
+  popd >/dev/null
+}
+
+# run plaintext tests
+start_test_plain_server
+
+# check plaintext connection works without a MITM
+echo "MITM - disabled, plaintext:"
+plaintext_test_case
+
+# check plaintext connection works with a MITM
+start_iptables
+start_mitm_server trusted matching-hostname # these args don't matter
+echo "MITM - plaintext:"
+plaintext_test_case
+
+# run SSL tests
+stop_mitm_server
+stop_iptables
+stop_test_plain_server
 start_test_server
 
 # check connection works in all cases without a MITM
