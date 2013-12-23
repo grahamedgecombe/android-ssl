@@ -155,7 +155,8 @@ public final class HandshakeRunnable implements Runnable {
 			executor.execute(clientToServerCopier);
 			executor.execute(serverToClientCopier);
 		} catch (IOException ex) {
-			// TODO ensure everything is closed upon failure and maybe log warnings
+			// TODO ensure everything is closed after a failure
+			logger.log(Level.WARNING, "Handshake failed:", ex);
 		}
 	}
 
