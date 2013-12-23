@@ -7,12 +7,16 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 public final class MitmKeyManager implements X509KeyManager {
-	private final X509Certificate[] chain;
 	private final PrivateKey key;
+	private X509Certificate[] chain;
 
-	public MitmKeyManager(X509Certificate[] chain, PrivateKey key) {
+	public MitmKeyManager(PrivateKey key, X509Certificate[] chain) {
 		this.chain = chain;
 		this.key = key;
+	}
+
+	public void setChain(X509Certificate[] chain) {
+		this.chain = chain;
 	}
 
 	@Override

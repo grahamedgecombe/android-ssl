@@ -88,8 +88,14 @@ project(':mitm') {
 	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+
+	idea {
+		module {
+			jdkName = '1.8'
+		}
+	}
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'

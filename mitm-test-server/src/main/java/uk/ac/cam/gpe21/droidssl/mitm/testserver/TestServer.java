@@ -30,7 +30,7 @@ public final class TestServer {
 
 		PrivateKey key = KeyUtils.readPrivateKey(Paths.get("cert.key"));
 
-		KeyManager keyManager = new MitmKeyManager(chain, key);
+		KeyManager keyManager = new MitmKeyManager(key, chain);
 
 		TestServer server = new TestServer(keyManager);
 		server.start();
