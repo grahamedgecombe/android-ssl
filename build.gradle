@@ -139,7 +139,7 @@ project(':mitm-test-client') {
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
-		compile project(':mitm-common');
+		compile project(':mitm-common')
 		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.5'
 	}
 
@@ -164,7 +164,7 @@ project(':mitm-test-server') {
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
-		compile project(':mitm-common');
+		compile project(':mitm-common')
 	}
 
 	fatJar {
@@ -212,6 +212,58 @@ project(':mitm-test-plain-server') {
 	fatJar {
 		manifest {
 			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testserver.PlainServer'
+		}
+	}
+}
+
+project(':mitm-test-sni-client') {
+	apply plugin: 'java'
+	apply plugin: 'fatjar'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+
+	idea {
+		module {
+			jdkName = '1.8'
+		}
+	}
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.11'
+		compile project(':mitm-common')
+	}
+
+	fatJar {
+		manifest {
+			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testclient.SniClient'
+		}
+	}
+}
+
+project(':mitm-test-sni-server') {
+	apply plugin: 'java'
+	apply plugin: 'fatjar'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+
+	idea {
+		module {
+			jdkName = '1.8'
+		}
+	}
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.11'
+		compile project(':mitm-common')
+	}
+
+	fatJar {
+		manifest {
+			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testserver.SniServer'
 		}
 	}
 }
