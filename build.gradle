@@ -13,8 +13,8 @@ buildscript {
 	dependencies {
 		classpath group: 'com.github.ben-manes', name: 'gradle-versions-plugin', version: '0.4'
 		classpath group: 'eu.appsatori', name: 'gradle-fatjar-plugin', version: '0.2'
-		classpath group: 'com.android.tools.build', name: 'gradle', version: '0.6.3'
-		classpath group: 'com.google.guava', name: 'guava', version: '15.0' /* for Android Gradle plugin */
+		classpath group: 'com.android.tools.build', name: 'gradle', version: '0.7.3'
+		classpath group: 'com.google.guava', name: 'guava', version: '16.0-rc1' /* for Android Gradle plugin */
 	}
 }
 
