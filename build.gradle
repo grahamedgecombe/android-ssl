@@ -194,6 +194,10 @@ project(':mitm-test-plain-client') {
 		manifest {
 			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testclient.PlainClient'
 		}
+
+		exclude 'META-INF/*.DSA'
+		exclude 'META-INF/*.RSA'
+		exclude 'META-INF/*.SF'
 	}
 }
 
@@ -213,6 +217,10 @@ project(':mitm-test-plain-server') {
 		manifest {
 			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testserver.PlainServer'
 		}
+
+		exclude 'META-INF/*.DSA'
+		exclude 'META-INF/*.RSA'
+		exclude 'META-INF/*.SF'
 	}
 }
 
@@ -239,6 +247,10 @@ project(':mitm-test-sni-client') {
 		manifest {
 			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testclient.SniClient'
 		}
+
+		exclude 'META-INF/*.DSA'
+		exclude 'META-INF/*.RSA'
+		exclude 'META-INF/*.SF'
 	}
 }
 
@@ -265,6 +277,10 @@ project(':mitm-test-sni-server') {
 		manifest {
 			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.mitm.testserver.SniServer'
 		}
+
+		exclude 'META-INF/*.DSA'
+		exclude 'META-INF/*.RSA'
+		exclude 'META-INF/*.SF'
 	}
 }
 
