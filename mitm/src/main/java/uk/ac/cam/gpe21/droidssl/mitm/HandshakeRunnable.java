@@ -8,11 +8,13 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,13 +34,41 @@ public final class HandshakeRunnable implements Runnable {
 	public void run() {
 		try {
 			/*
-			 * Find the address of the target server and connect to it.
+			 * Find the address of the target server.
 			 */
 			DestinationFinder destinationFinder = server.getDestinationFinder();
 			InetSocketAddress addr = destinationFinder.getDestination(socket);
 			InetAddress ip = addr.getAddress();
 			int port = addr.getPort();
 
+			/*
+			 * Check if the address is a loopback or local address, and if the
+			 * port matches the port which the MITM server listens on. If so,
+			 * we bail out to avoid causing an infinite loop of the MITM proxy
+			 * connecting to itself over and over.
+			 */
+			boolean loopback = ip.isLoopbackAddress() || ip.isAnyLocalAddress();
+			boolean portMatches = port == server.getServerSocket().getLocalPort();
+
+			for (Enumeration<NetworkInterface> it = NetworkInterface.getNetworkInterfaces(); it.hasMoreElements();) {
+				NetworkInterface dev = it.nextElement();
+				for (Enumeration<InetAddress> it0 = dev.getInetAddresses(); it0.hasMoreElements();) {
+					InetAddress devAddr = it0.nextElement();
+					if (ip.equals(devAddr)) {
+						loopback = true;
+					}
+				}
+			}
+
+			if (loopback && portMatches) {
+				logger.warning("Closing connection to self...");
+				socket.close();
+				return;
+			}
+
+			/*
+			 * Connect to the target server.
+			 */
 			logger.info("Connecting to " + ip.getHostAddress() + ":" + port + " without SNI...");
 
 			SSLSocketFactory factory = server.getPermissiveSocketFactory();

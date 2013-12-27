@@ -149,6 +149,10 @@ public final class MitmServer {
 		return certificateCache;
 	}
 
+	public ServerSocket getServerSocket() {
+		return serverSocket;
+	}
+
 	public SSLSocketFactory getPermissiveSocketFactory() {
 		return permissiveSocketFactory;
 	}
