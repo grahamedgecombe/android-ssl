@@ -5,7 +5,7 @@ import soot.options.Options;
 import uk.ac.cam.gpe21.droidssl.analysis.trans.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public final class StaticAnalyser {
@@ -25,7 +25,7 @@ public final class StaticAnalyser {
 		 * Set path to input APK.
 		 */
 		Options.v().set_src_prec(Options.src_prec_apk);
-		Options.v().set_process_dir(Arrays.asList(args[0]));
+		Options.v().set_process_dir(Collections.singletonList(args[0]));
 
 		/*
 		 * Prevent Soot from outputting *.jimple files.

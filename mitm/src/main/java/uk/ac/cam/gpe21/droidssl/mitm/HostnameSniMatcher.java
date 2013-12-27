@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,7 +46,7 @@ public final class HostnameSniMatcher extends SNIMatcher {
 			SSLSocket socket = (SSLSocket) server.getPermissiveSocketFactory().createSocket(new Socket(ip, port), host, port, true);
 
 			SSLParameters params = socket.getSSLParameters();
-			params.setServerNames(Arrays.asList(name));
+			params.setServerNames(Collections.singletonList(name));
 			socket.setSSLParameters(params);
 
 			socket.startHandshake();
