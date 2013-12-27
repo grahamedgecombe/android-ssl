@@ -111,7 +111,7 @@ public final class SocketUtils {
 			return socket.getOutputStream();
 
 		/*
-		 * The bug only effects Sockets backed by a SocketChannel.
+		 * The bug only affects Sockets backed by a SocketChannel.
 		 */
 		final SocketChannel channel = socket.getChannel();
 		if (channel == null)
