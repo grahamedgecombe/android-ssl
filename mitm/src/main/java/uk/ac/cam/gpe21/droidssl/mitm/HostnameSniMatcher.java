@@ -7,7 +7,6 @@ import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.logging.Level;
@@ -18,13 +17,15 @@ public final class HostnameSniMatcher extends SNIMatcher {
 
 	private final MitmServer server;
 	private final MitmKeyManager keyManager;
+	private final InetSocketAddress sourceAddress;
 	private final InetSocketAddress address;
 	private SSLSocket sniSocket;
 
-	public HostnameSniMatcher(MitmServer server, MitmKeyManager keyManager, InetSocketAddress address) {
+	public HostnameSniMatcher(MitmServer server, MitmKeyManager keyManager, InetSocketAddress sourceAddress, InetSocketAddress address) {
 		super(StandardConstants.SNI_HOST_NAME);
 		this.server = server;
 		this.keyManager = keyManager;
+		this.sourceAddress = sourceAddress;
 		this.address = address;
 	}
 
@@ -43,7 +44,7 @@ public final class HostnameSniMatcher extends SNIMatcher {
 			 * Connect to the destination IP/port with SNI enabled (passing
 			 * through the original client's SNI request).
 			 */
-			SSLSocket socket = (SSLSocket) server.getPermissiveSocketFactory().createSocket(new Socket(ip, port), host, port, true);
+			SSLSocket socket = server.getSocketFactory().openSslSocket(sourceAddress, address, host);
 
 			SSLParameters params = socket.getSSLParameters();
 			params.setServerNames(Collections.singletonList(name));

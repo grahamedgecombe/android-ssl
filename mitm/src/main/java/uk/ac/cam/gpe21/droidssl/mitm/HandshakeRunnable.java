@@ -3,6 +3,7 @@ package uk.ac.cam.gpe21.droidssl.mitm;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.MitmKeyManager;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -34,12 +35,19 @@ public final class HandshakeRunnable implements Runnable {
 	public void run() {
 		try {
 			/*
-			 * Find the address of the target server.
+			 * Find the source address.
+			 */
+			InetSocketAddress sourceAddr = (InetSocketAddress) socket.getRemoteSocketAddress();
+
+			/*
+			 * Find the destination address.
 			 */
 			DestinationFinder destinationFinder = server.getDestinationFinder();
 			InetSocketAddress addr = destinationFinder.getDestination(socket);
 			InetAddress ip = addr.getAddress();
 			int port = addr.getPort();
+
+			logger.info("Accepted connection from " + sourceAddr + " -> " + addr);
 
 			/*
 			 * Check if the address is a loopback or local address, and if the
@@ -71,8 +79,8 @@ public final class HandshakeRunnable implements Runnable {
 			 */
 			logger.info("Connecting to " + ip.getHostAddress() + ":" + port + " without SNI...");
 
-			SSLSocketFactory factory = server.getPermissiveSocketFactory();
-			SSLSocket secureOther = (SSLSocket) factory.createSocket(ip, port);
+			SocketFactory factory = server.getSocketFactory();
+			SSLSocket secureOther = factory.openSslSocket(sourceAddr, addr);
 
 			/*
 			 * Normally the handshake is only started when reading or writing
@@ -104,7 +112,7 @@ public final class HandshakeRunnable implements Runnable {
 				 * a protocol other than SSL - e.g. plaintext HTTP).
 				 */
 				ssl = false;
-				other = new Socket(addr.getAddress(), addr.getPort());
+				other = factory.openSocket(sourceAddr, addr);
 			}
 
 			IoCopyRunnable clientToServerCopier, serverToClientCopier;
@@ -143,7 +151,7 @@ public final class HandshakeRunnable implements Runnable {
 				 * we need to have already picked a certificate to serve to the
 				 * client.
 				 */
-				HostnameSniMatcher sniMatcher = new HostnameSniMatcher(server, keyManager, addr);
+				HostnameSniMatcher sniMatcher = new HostnameSniMatcher(server, keyManager, sourceAddr, addr);
 				SSLParameters params = secureSocket.getSSLParameters();
 				params.setSNIMatchers(Arrays.<SNIMatcher>asList(sniMatcher));
 				secureSocket.setSSLParameters(params);

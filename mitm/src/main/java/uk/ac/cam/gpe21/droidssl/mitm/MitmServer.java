@@ -16,6 +16,9 @@ import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.FixedDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.NatDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.TproxyDestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.StandardSocketFactory;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.TproxySocketFactory;
 import uk.ac.cam.gpe21.droidssl.mitm.util.SocketAddressParser;
 
 import javax.net.ssl.SSLContext;
@@ -33,6 +36,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public final class MitmServer {
+	private static SSLSocketFactory createPermissiveSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+		SSLContext ctx = SSLContext.getInstance("TLS");
+		ctx.init(null, new TrustManager[] {
+			new PermissiveTrustManager()
+		}, null);
+		return ctx.getSocketFactory();
+	}
+
 	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
 		OptionParser parser = new OptionParser();
 
@@ -48,13 +59,19 @@ public final class MitmServer {
 
 		OptionSet set = parser.parse(args);
 
+		SSLSocketFactory sslSocketFactory = createPermissiveSocketFactory();
+
+		SocketFactory socketFactory;
 		DestinationFinder destinationFinder;
 		if (set.has("fixed")) {
 			String address = (String) set.valueOf("fixed");
+			socketFactory = new StandardSocketFactory(sslSocketFactory);
 			destinationFinder = new FixedDestinationFinder(SocketAddressParser.parse(address));
 		} else if (set.has("nat")) {
+			socketFactory = new StandardSocketFactory(sslSocketFactory);
 			destinationFinder = new NatDestinationFinder();
 		} else if (set.has("tproxy")) {
+			socketFactory = new TproxySocketFactory(sslSocketFactory);
 			destinationFinder = new TproxyDestinationFinder();
 		} else {
 			System.err.println("Either --fixed, --nat or --tproxy must be specified.");
@@ -84,11 +101,12 @@ public final class MitmServer {
 			return;
 		}
 
-		MitmServer server = new MitmServer(destinationFinder, hostnameFinder, caPrefix);
+		MitmServer server = new MitmServer(socketFactory, destinationFinder, hostnameFinder, caPrefix);
 		server.start();
 	}
 
 	private final Executor executor = Executors.newCachedThreadPool();
+	private final SocketFactory socketFactory;
 	private final DestinationFinder destinationFinder;
 	private final HostnameFinder hostnameFinder;
 	private final CertificateAuthority certificateAuthority;
@@ -96,29 +114,19 @@ public final class MitmServer {
 	private final PrivateKey privateKey;
 	private final CertificateCache certificateCache;
 	private final ServerSocket serverSocket;
-	private final SSLSocketFactory permissiveSocketFactory;
 
-	public MitmServer(DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+	public MitmServer(SocketFactory socketFactory, DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+		this.socketFactory = socketFactory;
 		this.destinationFinder = destinationFinder;
 		this.hostnameFinder = hostnameFinder;
 		this.certificateAuthority = new CertificateAuthority(Paths.get(caPrefix + ".crt"), Paths.get(caPrefix + ".key"));
 		this.keyPair = new KeyPairGenerator().generate();
 		this.privateKey = KeyUtils.convertToJca(keyPair).getPrivate();
 		this.certificateCache = new CertificateCache(new CertificateGenerator(certificateAuthority, keyPair));
-		this.serverSocket = destinationFinder.openUnboundServerSocket();
-		this.permissiveSocketFactory = createPermissiveSocketFactory();
-	}
-
-	private SSLSocketFactory createPermissiveSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
-		SSLContext ctx = SSLContext.getInstance("TLS");
-		ctx.init(null, new TrustManager[] {
-			new PermissiveTrustManager()
-		}, null);
-		return ctx.getSocketFactory();
+		this.serverSocket = socketFactory.openServerSocket(new InetSocketAddress(8443));
 	}
 
 	public void start() throws IOException, CertificateException {
-		serverSocket.bind(new InetSocketAddress(8443));
 		while (true) {
 			Socket socket = serverSocket.accept();
 			executor.execute(new HandshakeRunnable(this, socket));
@@ -127,6 +135,10 @@ public final class MitmServer {
 
 	public Executor getExecutor() {
 		return executor;
+	}
+
+	public SocketFactory getSocketFactory() {
+		return socketFactory;
 	}
 
 	public DestinationFinder getDestinationFinder() {
@@ -151,9 +163,5 @@ public final class MitmServer {
 
 	public ServerSocket getServerSocket() {
 		return serverSocket;
-	}
-
-	public SSLSocketFactory getPermissiveSocketFactory() {
-		return permissiveSocketFactory;
 	}
 }
