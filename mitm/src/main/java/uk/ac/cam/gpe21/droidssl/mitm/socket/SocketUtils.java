@@ -14,10 +14,14 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 public final class SocketUtils {
 	private static final Class<?> SERVER_SOCKET_CHANNEL_IMPL;
 	private static final Field SERVER_SOCKET_CHANNEL_FD;
+
+	private static final Class<?> SOCKET_CHANNEL_IMPL;
+	private static final Field SOCKET_CHANNEL_FD;
 
 	private static final Class<?> SSL_SOCKET_IMPL;
 	private static final Field SOCK_INPUT;
@@ -30,6 +34,11 @@ public final class SocketUtils {
 
 			SERVER_SOCKET_CHANNEL_FD = SERVER_SOCKET_CHANNEL_IMPL.getDeclaredField("fd");
 			SERVER_SOCKET_CHANNEL_FD.setAccessible(true);
+
+			SOCKET_CHANNEL_IMPL = Class.forName("sun.nio.ch.SocketChannelImpl");
+
+			SOCKET_CHANNEL_FD = SOCKET_CHANNEL_IMPL.getDeclaredField("fd");
+			SOCKET_CHANNEL_FD.setAccessible(true);
 
 			SSL_SOCKET_IMPL = Class.forName("sun.security.ssl.SSLSocketImpl");
 
@@ -81,9 +90,41 @@ public final class SocketUtils {
 		return ch.socket();
 	}
 
+	/**
+	 * Opens an unbound, unconnected {@link Socket} with the
+	 * {@code IP_TRANSPARENT} option enabled.
+	 * @return The {@link Socket}.
+	 * @throws IOException if an I/O error occurs opening the socket or if the
+	 *                     {@code IP_TRANSPARENT} option could not be set.
+	 */
+	public static Socket openTproxySocket() throws IOException {
+		/* See comments in openTproxyServerSocket(). */
+		SocketChannel ch = SocketChannel.open();
+		int fd = getFileDescriptor(ch);
+
+		IntByReference yes = new IntByReference(1);
+
+		try {
+			CLibrary.INSTANCE.setsockopt(fd, CLibrary.SOL_IP, CLibrary.IP_TRANSPARENT, yes.getPointer(), 4);
+		} catch (LastErrorException ex) {
+			throw new IOException("setsockopt: " + CLibrary.INSTANCE.strerror(ex.getErrorCode()));
+		}
+
+		return ch.socket();
+	}
+
 	public static int getFileDescriptor(ServerSocketChannel channel) throws IOException {
 		try {
 			FileDescriptor fd = (FileDescriptor) SERVER_SOCKET_CHANNEL_FD.get(channel);
+			return FD.getInt(fd);
+		} catch (IllegalAccessException ex) {
+			throw new IOException(ex);
+		}
+	}
+
+	public static int getFileDescriptor(SocketChannel channel) throws IOException {
+		try {
+			FileDescriptor fd = (FileDescriptor) SOCKET_CHANNEL_FD.get(channel);
 			return FD.getInt(fd);
 		} catch (IllegalAccessException ex) {
 			throw new IOException(ex);
