@@ -21,7 +21,7 @@ public final class IoCopyRunnable implements Runnable {
 			byte[] buf = new byte[4096];
 			int n;
 			while ((n = in.read(buf, 0, buf.length)) != -1) {
-				System.out.println(HexFormat.format(buf, n));
+				System.out.println(HexFormat.format(buf, n) + "\n");
 				out.write(buf, 0, n);
 			}
 		} catch (IOException ex) {
