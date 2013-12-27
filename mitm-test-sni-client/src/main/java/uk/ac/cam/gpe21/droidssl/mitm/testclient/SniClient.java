@@ -20,7 +20,9 @@ public final class SniClient {
 	public static void main(String[] args) throws KeyManagementException, NoSuchAlgorithmException, IOException {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 
-		SniClient client = new SniClient(new InetSocketAddress("127.0.0.1", 12345), args[0]);
+		String host = args.length >= 1 ? args[0] : null;
+
+		SniClient client = new SniClient(new InetSocketAddress("127.0.0.1", 12345), host);
 		client.start();
 	}
 
@@ -44,9 +46,11 @@ public final class SniClient {
 		int port = address.getPort();
 
 		try (SSLSocket socket = (SSLSocket) factory.createSocket(new Socket(ip, port), host, port, true)) {
-			SSLParameters params = socket.getSSLParameters();
-			params.setServerNames(Arrays.<SNIServerName>asList(new SNIHostName(host)));
-			socket.setSSLParameters(params);
+			if (host != null) {
+				SSLParameters params = socket.getSSLParameters();
+				params.setServerNames(Arrays.<SNIServerName>asList(new SNIHostName(host)));
+				socket.setSSLParameters(params);
+			}
 
 			socket.startHandshake();
 
