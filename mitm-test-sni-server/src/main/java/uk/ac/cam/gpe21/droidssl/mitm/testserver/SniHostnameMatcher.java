@@ -1,6 +1,9 @@
 package uk.ac.cam.gpe21.droidssl.mitm.testserver;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIMatcher;
+import javax.net.ssl.SNIServerName;
+import javax.net.ssl.StandardConstants;
 
 public final class SniHostnameMatcher extends SNIMatcher {
 	private String hostname;
