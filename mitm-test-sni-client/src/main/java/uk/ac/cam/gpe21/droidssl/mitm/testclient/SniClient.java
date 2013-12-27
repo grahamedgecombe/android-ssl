@@ -1,6 +1,7 @@
 package uk.ac.cam.gpe21.droidssl.mitm.testclient;
 
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.PermissiveTrustManager;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateUtils;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -59,7 +60,7 @@ public final class SniClient {
 
 			Certificate[] chain = socket.getSession().getPeerCertificates();
 			X509Certificate leaf = (X509Certificate) chain[0];
-			System.out.println(leaf.getSubjectDN());
+			System.out.println(CertificateUtils.extractCn(leaf));
 		}
 	}
 }

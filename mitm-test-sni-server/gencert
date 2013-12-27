@@ -1,0 +1,12 @@
+#!/bin/sh -e
+echo 'Enter default.example.com as the CN:'
+openssl req -new -key cert.key -out cert.csr
+openssl x509 -req -days 3650 -in cert.csr -CA ca.crt -CAkey ca.key -CAserial ca.srl -CAcreateserial -out cert.crt
+
+echo 'Enter test1.example.com as the CN:'
+openssl req -new -key cert.key -out cert1.csr
+openssl x509 -req -days 3650 -in cert1.csr -CA ca.crt -CAkey ca.key -CAserial ca.srl -CAcreateserial -out cert1.crt
+
+echo 'Enter test2.example.com as the CN:'
+openssl req -new -key cert.key -out cert2.csr
+openssl x509 -req -days 3650 -in cert2.csr -CA ca.crt -CAkey ca.key -CAserial ca.srl -CAcreateserial -out cert2.crt
