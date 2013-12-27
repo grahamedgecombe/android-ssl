@@ -24,7 +24,7 @@ public final class SocketUtils {
 	private static final Field SOCKET_CHANNEL_FD;
 
 	private static final Class<?> SSL_SOCKET_IMPL;
-	private static final Field SOCK_INPUT;
+	private static final Field SSL_SOCKET_INPUT;
 
 	private static final Field FD;
 
@@ -42,8 +42,8 @@ public final class SocketUtils {
 
 			SSL_SOCKET_IMPL = Class.forName("sun.security.ssl.SSLSocketImpl");
 
-			SOCK_INPUT = SSL_SOCKET_IMPL.getDeclaredField("sockInput");
-			SOCK_INPUT.setAccessible(true);
+			SSL_SOCKET_INPUT = SSL_SOCKET_IMPL.getDeclaredField("sockInput");
+			SSL_SOCKET_INPUT.setAccessible(true);
 
 			FD = FileDescriptor.class.getDeclaredField("fd");
 			FD.setAccessible(true);
@@ -142,7 +142,7 @@ public final class SocketUtils {
 				 * SSLSocketImpl.sockInput field with reflection to get at the
 				 * InputStream which is backed by a file descriptor.
 				 */
-				in = SOCK_INPUT.get(socket);
+				in = SSL_SOCKET_INPUT.get(socket);
 			} else {
 				in = socket.getInputStream();
 			}
