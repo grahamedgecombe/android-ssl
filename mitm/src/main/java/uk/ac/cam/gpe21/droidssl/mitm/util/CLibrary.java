@@ -14,6 +14,7 @@ public interface CLibrary extends Library {
 
 	/* from /usr/include/bits/in.h */
 	public final int SOL_IP = 0;
+	public final int IP_TRANSPARENT = 19;
 
 	/* from /usr/include/linux/netfilter_ipv4.h */
 	public final int SO_ORIGINAL_DST = 80;
@@ -33,6 +34,7 @@ public interface CLibrary extends Library {
 
 	/* from /usr/include/sys/socket.h */
 	public int getsockopt(int socket, int level, int option_name, Pointer option_value, IntByReference option_len) throws LastErrorException;
+	public int setsockopt(int socket, int level, int option_name, Pointer option_value, int option_len) throws LastErrorException;
 
 	/* from /usr/include/string.h */
 	public String strerror(int errnum);
