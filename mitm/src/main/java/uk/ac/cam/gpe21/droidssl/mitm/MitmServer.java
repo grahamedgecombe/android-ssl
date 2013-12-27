@@ -22,6 +22,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Paths;
@@ -104,7 +105,7 @@ public final class MitmServer {
 		this.keyPair = new KeyPairGenerator().generate();
 		this.privateKey = KeyUtils.convertToJca(keyPair).getPrivate();
 		this.certificateCache = new CertificateCache(new CertificateGenerator(certificateAuthority, keyPair));
-		this.serverSocket = new ServerSocket(8443);
+		this.serverSocket = destinationFinder.openUnboundServerSocket();
 		this.permissiveSocketFactory = createPermissiveSocketFactory();
 	}
 
@@ -117,6 +118,7 @@ public final class MitmServer {
 	}
 
 	public void start() throws IOException, CertificateException {
+		serverSocket.bind(new InetSocketAddress(8443));
 		while (true) {
 			Socket socket = serverSocket.accept();
 			executor.execute(new HandshakeRunnable(this, socket));
