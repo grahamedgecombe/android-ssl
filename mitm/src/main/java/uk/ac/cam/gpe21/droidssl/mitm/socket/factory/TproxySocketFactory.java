@@ -22,6 +22,9 @@ public final class TproxySocketFactory extends SocketFactory {
 
 	@Override
 	public Socket openSocket(InetSocketAddress source, InetSocketAddress destination) throws IOException {
+		// TODO: this won't work for SNI yet, as we open a second socket while
+		// the first socket is still open and they cannot share the same source
+		// address.
 		Socket socket = SocketUtils.openTproxySocket();
 		socket.bind(source);
 		socket.connect(destination);

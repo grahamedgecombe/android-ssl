@@ -1,5 +1,7 @@
 package uk.ac.cam.gpe21.droidssl.mitm.socket.factory;
 
+import uk.ac.cam.gpe21.droidssl.mitm.socket.SocketUtils;
+
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
@@ -23,6 +25,8 @@ public abstract class SocketFactory {
 
 	public final SSLSocket openSslSocket(InetSocketAddress source, InetSocketAddress destination, String host) throws IOException {
 		Socket raw = openSocket(source, destination);
-		return (SSLSocket) sslSocketFactory.createSocket(raw, host, destination.getPort(), true);
+		SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(raw, host, destination.getPort(), true);
+		SocketUtils.fixSslOutputStream(socket);
+		return socket;
 	}
 }

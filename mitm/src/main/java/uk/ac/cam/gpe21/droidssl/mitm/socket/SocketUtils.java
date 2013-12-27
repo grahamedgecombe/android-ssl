@@ -5,16 +5,11 @@ import com.sun.jna.ptr.IntByReference;
 import uk.ac.cam.gpe21.droidssl.mitm.util.CLibrary;
 
 import javax.net.ssl.SSLSocket;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
 
 public final class SocketUtils {
 	private static final Class<?> SERVER_SOCKET_CHANNEL_IMPL;
@@ -25,6 +20,7 @@ public final class SocketUtils {
 
 	private static final Class<?> SSL_SOCKET_IMPL;
 	private static final Field SSL_SOCKET_INPUT;
+	private static final Field SSL_SOCKET_OUTPUT;
 
 	private static final Field FD;
 
@@ -45,10 +41,106 @@ public final class SocketUtils {
 			SSL_SOCKET_INPUT = SSL_SOCKET_IMPL.getDeclaredField("sockInput");
 			SSL_SOCKET_INPUT.setAccessible(true);
 
+			SSL_SOCKET_OUTPUT = SSL_SOCKET_IMPL.getDeclaredField("sockOutput");
+			SSL_SOCKET_OUTPUT.setAccessible(true);
+
 			FD = FileDescriptor.class.getDeclaredField("fd");
 			FD.setAccessible(true);
 		} catch (NoSuchFieldException | ClassNotFoundException ex) {
 			throw new ExceptionInInitializerError(ex);
+		}
+	}
+
+	private static OutputStream newWrappedOutputStream(final SocketChannel ch) {
+		return Channels.newOutputStream(new WritableByteChannel() {
+			@Override
+			public int write(ByteBuffer src) throws IOException {
+				return ch.write(src);
+			}
+
+			@Override
+			public boolean isOpen() {
+				return ch.isOpen();
+			}
+
+			@Override
+			public void close() throws IOException {
+				ch.close();
+			}
+		});
+	}
+
+	public static OutputStream getOutputStream(Socket socket) throws IOException {
+		/*
+		 * Workaround a bug:
+		 *   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4509080
+		 *   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4774871
+		 *   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6977788
+		 *
+		 * If a Socket is backed by a SocketChannel (via SocketChannel's
+		 * socket() method), both the InputStream and OutputStream it returns
+		 * synchronize on the same lock, making a concurrent read()/write()
+		 * impossible - e.g. consider the following case:
+		 *
+		 * - server is waiting for data
+		 * - client starts read()
+		 * - client starts write() but blocks because read() hold the lock
+		 * - server never receives the data, thus never sends a response,
+		 *   meaning read() continues to block indefinitely
+		 *
+		 * The lock both streams synchronize on is the SelectableChannel's
+		 * blockingLock(). As a workaround, we wrap the SelectableChannel
+		 * within a WritableByteChannel, and use that to create the
+		 * OutputStream instead, which does not trigger the faulty locking.
+		 *
+		 * (There is no need to do the same to the InputStream - it does not
+		 * matter if it holds the lock or not after the workaround. Equally, we
+		 * could have wrapped the InputStream and left the original
+		 * OutputStream. However, using the OutputStream is easier as
+		 * sun.nio.ch.SocketAdaptor calls Channels.newOutputStream() directly,
+		 * whereas it has its own custom SocketInputStream implementation.)
+		 */
+
+		/*
+		 * If we apply this workaround on an SSLSocket we'll get an
+		 * OutputStream which operates directly on the socket (i.e. underneath
+		 * TLS), not on the application layer above TLS. SSLSocket has a
+		 * separate workaround found in the method below.
+		 */
+		if (socket instanceof SSLSocket)
+			return socket.getOutputStream();
+
+		/*
+		 * The bug only effects Sockets backed by a SocketChannel.
+		 */
+		final SocketChannel channel = socket.getChannel();
+		if (channel == null)
+			return socket.getOutputStream();
+
+		return newWrappedOutputStream(channel);
+	}
+
+	public static void fixSslOutputStream(SSLSocket socket) throws IOException {
+		/*
+		 * Workaround the same bug as above.
+		 *
+		 * As SSLSocket will call methods on its own OutputStream, we have to
+		 * take a different approach to the one in the previous method. Instead
+		 * of relying on the user calling SocketUtils.getOutputStream(socket)
+		 * over socket.getOutputStream(), we must dig into
+		 * sun.security.ssl.SSLSocketImpl and replace the sockOutput field
+		 * (which contains a reference to the raw OutputStream - below the TLS
+		 * layer) with the wrapped one which works around the problem.
+		 */
+		final SocketChannel channel = socket.getChannel();
+		if (channel == null)
+			return;
+
+		OutputStream out = newWrappedOutputStream(channel);
+		try {
+			SSL_SOCKET_OUTPUT.set(socket, out);
+		} catch (IllegalAccessException ex) {
+			throw new IOException(ex);
 		}
 	}
 
