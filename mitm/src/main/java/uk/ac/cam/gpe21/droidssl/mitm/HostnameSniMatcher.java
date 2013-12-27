@@ -39,7 +39,7 @@ public final class HostnameSniMatcher extends SNIMatcher {
 
 		logger.info("Connecting to " + ip.getHostAddress() + ":" + port + " with SNI (host = " + host + ")...");
 		try {
-			/**
+			/*
 			 * Connect to the destination IP/port with SNI enabled (passing
 			 * through the original client's SNI request).
 			 */
@@ -51,7 +51,7 @@ public final class HostnameSniMatcher extends SNIMatcher {
 
 			socket.startHandshake();
 
-			/**
+			/*
 			 * If we get this far past the handshake, the connection worked.
 			 * Generate and set a new fake certificate chain, to override the
 			 * non-SNI fake certificate. We also set sniSocket to the working

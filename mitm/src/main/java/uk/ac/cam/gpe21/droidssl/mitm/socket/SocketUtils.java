@@ -51,7 +51,7 @@ public final class SocketUtils {
 	 *                     {@code IP_TRANSPARENT} option could not be set.
 	 */
 	public static ServerSocket openTproxyServerSocket() throws IOException {
-		/**
+		/*
 		 * The old IO ServerSocket class obtains an FD and binds to the socket
 		 * in one go in a single native call, making it impossible to set the
 		 * IP_TRANSPARENT option prior to binding.
