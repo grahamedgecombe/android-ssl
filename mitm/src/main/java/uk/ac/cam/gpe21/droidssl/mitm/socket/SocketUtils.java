@@ -22,7 +22,7 @@ public final class SocketUtils {
 		try {
 			SSL_SOCKET_IMPL = Class.forName("sun.security.ssl.SSLSocketImpl");
 
-			SOCK_INPUT = SocketUtils.SSL_SOCKET_IMPL.getDeclaredField("sockInput");
+			SOCK_INPUT = SSL_SOCKET_IMPL.getDeclaredField("sockInput");
 			SOCK_INPUT.setAccessible(true);
 
 			FD = FileDescriptor.class.getDeclaredField("fd");
