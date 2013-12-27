@@ -32,7 +32,7 @@ public final class HexFormat {
 				if (j == 8)
 					buf.append(' ');
 
-				buf.append("00 ");
+				buf.append("   ");
 			}
 
 			buf.append("  ");
