@@ -66,6 +66,21 @@ stop_test_plain_server() {
   sleep 3
 }
 
+# functions for controlling the SNI test server
+start_test_sni_server() {
+  pushd mitm-test-sni-server >/dev/null
+  java -jar build/libs/mitm-test-sni-server-$version.jar &>>$server_log &
+  sleep 3 # wait a bit to ensure the socket has started listening
+  test_sni_server_pid=$!
+  popd >/dev/null
+}
+
+stop_test_sni_server() {
+  kill $test_sni_server_pid
+  wait $test_sni_server_pid || true
+  sleep 3
+}
+
 # functions for adding/removing the iptables rules
 start_iptables() {
   sudo iptables -t nat -A OUTPUT -p tcp --dport $port -m owner --uid-owner $mitm_user -j ACCEPT
@@ -115,6 +130,27 @@ plaintext_test_case() {
   popd >/dev/null
 }
 
+# code common for each SNI test case
+sni_test_case() {
+  local expected_hostname=$1
+
+  local input_hostname
+  if [ "$expected_hostname" != "default.example.com" ]; then
+    input_hostname=$expected_hostname
+  fi
+
+  pushd mitm-test-sni-client >/dev/null
+  local actual_hostname=$(java -jar build/libs/mitm-test-sni-client-$version.jar $input_hostname 2>>$client_log)
+
+  if [ "$expected_hostname" = "$actual_hostname" ]; then
+    echo pass
+  else
+    echo fail
+    failed=1
+  fi
+  popd >/dev/null
+}
+
 # run plaintext tests
 start_test_plain_server
 
@@ -128,10 +164,30 @@ start_mitm_server trusted matching-hostname # these args don't matter
 echo "MITM - plaintext:"
 plaintext_test_case
 
-# run SSL tests
+# run SNI tests
 stop_mitm_server
 stop_iptables
 stop_test_plain_server
+start_test_sni_server
+
+# check SNI connection works without a MITM
+echo "MITM - disabled, SNI:"
+sni_test_case default.example.com # check fallback works
+sni_test_case test1.example.com
+sni_test_case test2.example.com
+
+# cehck SNI connection works with a MITM
+start_iptables
+start_mitm_server trusted matching-hostname # these args don't matter
+echo "MITM - SNI:"
+sni_test_case default.example.com # check fallback works
+sni_test_case test1.example.com
+sni_test_case test2.example.com
+
+# run SSL tests
+stop_mitm_server
+stop_iptables
+stop_test_sni_server
 start_test_server
 
 # check connection works in all cases without a MITM
