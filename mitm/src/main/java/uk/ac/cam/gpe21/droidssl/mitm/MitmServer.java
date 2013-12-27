@@ -15,7 +15,7 @@ import uk.ac.cam.gpe21.droidssl.mitm.crypto.key.KeyUtils;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.FixedDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.NatDestinationFinder;
-import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.StandardDestinationFinder;
+import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.TproxyDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.util.SocketAddressParser;
 
 import javax.net.ssl.SSLContext;
@@ -37,7 +37,7 @@ public final class MitmServer {
 
 		parser.accepts("fixed").withRequiredArg();
 		parser.accepts("nat");
-		parser.accepts("standard");
+		parser.accepts("tproxy");
 
 		parser.accepts("matching-hostname");
 		parser.accepts("unmatching-hostname");
@@ -53,10 +53,10 @@ public final class MitmServer {
 			destinationFinder = new FixedDestinationFinder(SocketAddressParser.parse(address));
 		} else if (set.has("nat")) {
 			destinationFinder = new NatDestinationFinder();
-		} else if (set.has("standard")) {
-			destinationFinder = new StandardDestinationFinder();
+		} else if (set.has("tproxy")) {
+			destinationFinder = new TproxyDestinationFinder();
 		} else {
-			System.err.println("Either --fixed, --nat or --standard must be specified.");
+			System.err.println("Either --fixed, --nat or --tproxy must be specified.");
 			System.exit(1);
 			return;
 		}

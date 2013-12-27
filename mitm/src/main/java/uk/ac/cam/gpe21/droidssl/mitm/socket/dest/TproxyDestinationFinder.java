@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public final class StandardDestinationFinder extends DestinationFinder {
+public final class TproxyDestinationFinder extends DestinationFinder {
 	@Override
 	public InetSocketAddress getDestination(Socket socket) throws IOException {
 		return new InetSocketAddress(socket.getLocalAddress(), socket.getLocalPort());
