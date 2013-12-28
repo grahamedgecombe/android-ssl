@@ -2,7 +2,6 @@ package uk.ac.cam.gpe21.droidssl.mitm;
 
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.MitmKeyManager;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
-import uk.ac.cam.gpe21.droidssl.mitm.socket.SocketUtils;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
 
@@ -174,16 +173,16 @@ public final class HandshakeRunnable implements Runnable {
 				 * Create IoCopyRunnables which operate on the intercepted
 				 * decrypted data.
 				 */
-				clientToServerCopier = new IoCopyRunnable(secureSocket.getInputStream(), SocketUtils.getOutputStream(other));
-				serverToClientCopier = new IoCopyRunnable(other.getInputStream(), SocketUtils.getOutputStream(secureSocket));
+				clientToServerCopier = new IoCopyRunnable(secureSocket.getInputStream(), other.getOutputStream());
+				serverToClientCopier = new IoCopyRunnable(other.getInputStream(), secureSocket.getOutputStream());
 			} else {
 				/*
 				 * Create IoCopyRunnables which operate on the data sent
 				 * between the sockets directly (which may or may not be
 				 * plaintext).
 				 */
-				clientToServerCopier = new IoCopyRunnable(socket.getInputStream(), SocketUtils.getOutputStream(other));
-				serverToClientCopier = new IoCopyRunnable(other.getInputStream(), SocketUtils.getOutputStream(socket));
+				clientToServerCopier = new IoCopyRunnable(socket.getInputStream(), other.getOutputStream());
+				serverToClientCopier = new IoCopyRunnable(other.getInputStream(), socket.getOutputStream());
 			}
 
 			/*
@@ -209,9 +208,7 @@ public final class HandshakeRunnable implements Runnable {
 			ctx.init(new KeyManager[] {
 				keyManager
 			}, null, null);
-			SSLSocket sslSocket = (SSLSocket) ctx.getSocketFactory().createSocket(socket, host, port, true);
-			SocketUtils.fixSslOutputStream(sslSocket);
-			return sslSocket;
+			return (SSLSocket) ctx.getSocketFactory().createSocket(socket, host, port, true);
 		} catch (NoSuchAlgorithmException | KeyManagementException ex) {
 			throw new IOException(ex);
 		}
