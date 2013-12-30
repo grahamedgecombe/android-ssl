@@ -25,7 +25,6 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 				in.copy(out);
 
 				// TODO: consider super & subtypes (e.g. important for SSLSocketFactory)
-				// TODO: also use methodSignatureMatches?
 
 				InvokeExpr expr = stmt.getInvokeExpr();
 				if (!(expr instanceof InstanceInvokeExpr))
