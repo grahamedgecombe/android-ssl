@@ -86,12 +86,7 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 					@Override
 					public void caseVirtualInvokeExpr(VirtualInvokeExpr right) {
 						SootMethod targetMethod = right.getMethod();
-
-						RefType clazz = targetMethod.getDeclaringClass().getType();
-						String method = targetMethod.getName();
-
-						// TODO check the entire method signature
-						if (clazz.equals(Types.SSL_CONTEXT) && method.equals("getSocketFactory")) {
+						if (Signatures.methodSignatureMatches(targetMethod, Types.SSL_CONTEXT, Types.SSL_SOCKET_FACTORY, "getSocketFactory")) {
 							if (out.contains(right.getBase())) {
 								out.add(leftBox[0]);
 							}
