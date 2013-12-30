@@ -32,13 +32,8 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 					return;
 
 				InstanceInvokeExpr instanceExpr = (InstanceInvokeExpr) expr;
-
 				SootMethod targetMethod = stmt.getInvokeExpr().getMethod();
 
-				RefType clazz = targetMethod.getDeclaringClass().getType();
-				String method = targetMethod.getName();
-
-				// TODO check the entire method signature
 				if (Signatures.methodSignatureMatches(targetMethod, Types.SSL_CONTEXT, VoidType.v(), "init", Types.KEY_MANAGER_ARRAY, Types.TRUST_MANAGER_ARRAY, Types.SECURE_RANDOM)) {
 					Value context = instanceExpr.getBase();
 					Value trustManagerArray = instanceExpr.getArg(1);
