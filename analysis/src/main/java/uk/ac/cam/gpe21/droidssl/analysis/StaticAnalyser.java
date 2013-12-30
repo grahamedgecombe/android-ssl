@@ -4,9 +4,9 @@ import soot.*;
 import soot.options.Options;
 import uk.ac.cam.gpe21.droidssl.analysis.trans.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class StaticAnalyser {
 	public static void main(String[] args) {
@@ -52,7 +52,7 @@ public final class StaticAnalyser {
 		Options.v().set_whole_program(true);
 		PhaseOptions.v().processPhaseOptions("cg.spark", "enabled:true");
 
-		List<Vulnerability> vulnerabilities = new ArrayList<>();
+		Set<Vulnerability> vulnerabilities = new HashSet<>();
 
 		/*
 		 * Add transforms to the Whole Jimple Pre-processing Pack.
@@ -64,6 +64,8 @@ public final class StaticAnalyser {
 		 * Add transforms to the Whole Jimple Transformation Pack.
 		 */
 		AnalysisTransformer transformer = new AnalysisTransformer(
+			vulnerabilities,
+
 			/* find vulnerable HostnameVerifiers */
 			new KnownHostnameVerifierAnalyser(vulnerabilities),
 			new HostnameVerifierAnalyser(vulnerabilities),

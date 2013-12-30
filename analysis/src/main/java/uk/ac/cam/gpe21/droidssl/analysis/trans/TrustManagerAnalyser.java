@@ -14,10 +14,10 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.FlowGraphUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
-import java.util.List;
+import java.util.Set;
 
 public final class TrustManagerAnalyser extends IntraProceduralAnalyser {
-	public TrustManagerAnalyser(List<Vulnerability> vulnerabilities) {
+	public TrustManagerAnalyser(Set<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 

@@ -12,10 +12,10 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.PointsToUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
-import java.util.List;
+import java.util.Set;
 
 public final class DefaultHostnameVerifierAnalyser extends IntraProceduralAnalyser {
-	public DefaultHostnameVerifierAnalyser(List<Vulnerability> vulnerabilities) {
+	public DefaultHostnameVerifierAnalyser(Set<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 

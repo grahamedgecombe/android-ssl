@@ -12,10 +12,10 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.PointsToUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
-import java.util.List;
+import java.util.Set;
 
 public final class HttpsUrlConnectionAnalyser extends IntraProceduralAnalyser {
-	public HttpsUrlConnectionAnalyser(List<Vulnerability> vulnerabilities) {
+	public HttpsUrlConnectionAnalyser(Set<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 

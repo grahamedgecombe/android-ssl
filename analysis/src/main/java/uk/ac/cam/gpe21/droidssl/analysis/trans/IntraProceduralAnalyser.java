@@ -6,10 +6,10 @@ import soot.SootClass;
 import soot.SootMethod;
 import uk.ac.cam.gpe21.droidssl.analysis.Vulnerability;
 
-import java.util.List;
+import java.util.Set;
 
 public abstract class IntraProceduralAnalyser extends Analyser {
-	public IntraProceduralAnalyser(List<Vulnerability> vulnerabilities) {
+	public IntraProceduralAnalyser(Set<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 

@@ -14,10 +14,10 @@ import uk.ac.cam.gpe21.droidssl.analysis.util.FlowGraphUtils;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Signatures;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
-import java.util.List;
+import java.util.Set;
 
 public final class HostnameVerifierAnalyser extends IntraProceduralAnalyser {
-	public HostnameVerifierAnalyser(List<Vulnerability> vulnerabilities) {
+	public HostnameVerifierAnalyser(Set<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 

@@ -8,10 +8,10 @@ import uk.ac.cam.gpe21.droidssl.analysis.VulnerabilityState;
 import uk.ac.cam.gpe21.droidssl.analysis.tag.HostnameVerifierTag;
 import uk.ac.cam.gpe21.droidssl.analysis.util.Types;
 
-import java.util.List;
+import java.util.Set;
 
 public final class KnownHostnameVerifierAnalyser extends Analyser {
-	public KnownHostnameVerifierAnalyser(List<Vulnerability> vulnerabilities) {
+	public KnownHostnameVerifierAnalyser(Set<Vulnerability> vulnerabilities) {
 		super(vulnerabilities);
 	}
 
