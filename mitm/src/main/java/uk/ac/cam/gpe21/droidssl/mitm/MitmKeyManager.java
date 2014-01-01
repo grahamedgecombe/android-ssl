@@ -55,6 +55,9 @@ public final class MitmKeyManager implements X509KeyManager {
 
 		String host = null;
 
+		/*
+		 * Check if the client supplied a hostname with the SNI extension.
+		 */
 		ExtendedSSLSession extendedSession = (ExtendedSSLSession) session;
 		for (SNIServerName name : extendedSession.getRequestedServerNames()) {
 			if (name.getType() == StandardConstants.SNI_HOST_NAME) {
@@ -65,6 +68,10 @@ public final class MitmKeyManager implements X509KeyManager {
 		}
 
 		try {
+			/*
+			 * Connect to the destination server, possibly with SNI, then start
+			 * the handshake.
+			 */
 			SocketFactory socketFactory = server.getSocketFactory();
 			if (host != null) {
 				this.socket = socketFactory.openSslSocket(sourceAddr, addr, host);
@@ -73,6 +80,9 @@ public final class MitmKeyManager implements X509KeyManager {
 			}
 			this.socket.startHandshake();
 
+			/*
+			 * Generate a fake certificate.
+			 */
 			CertificateCache certificateCache = server.getCertificateCache();
 			chain = certificateCache.getChain(server, this.socket);
 		} catch (IOException ex) {
