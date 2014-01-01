@@ -6,15 +6,21 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-public final class MitmKeyManager implements X509KeyManager {
+/**
+ * An {@link X509KeyManager} which returns a single {@link PrivateKey} and
+ * {@link X509Certificate}.
+ * @author Graham Edgecombe
+ */
+public final class FixedKeyManager implements X509KeyManager {
 	private final PrivateKey key;
 	private X509Certificate[] chain;
 
-	public MitmKeyManager(PrivateKey key, X509Certificate[] chain) {
+	public FixedKeyManager(PrivateKey key, X509Certificate[] chain) {
 		this.chain = chain;
 		this.key = key;
 	}
 
+	@Deprecated
 	public void setChain(X509Certificate[] chain) {
 		this.chain = chain;
 	}

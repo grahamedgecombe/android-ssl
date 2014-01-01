@@ -1,6 +1,6 @@
 package uk.ac.cam.gpe21.droidssl.mitm.testserver;
 
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.MitmKeyManager;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.FixedKeyManager;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateUtils;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.key.KeyUtils;
 
@@ -30,7 +30,7 @@ public final class TestServer {
 
 		PrivateKey key = KeyUtils.readPrivateKey(Paths.get("cert.key"));
 
-		KeyManager keyManager = new MitmKeyManager(key, chain);
+		KeyManager keyManager = new FixedKeyManager(key, chain);
 
 		TestServer server = new TestServer(keyManager);
 		server.start();

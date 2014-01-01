@@ -1,6 +1,6 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.MitmKeyManager;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.FixedKeyManager;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
 
 import javax.net.ssl.*;
@@ -16,12 +16,12 @@ public final class HostnameSniMatcher extends SNIMatcher {
 	private static final Logger logger = Logger.getLogger(HostnameSniMatcher.class.getName());
 
 	private final MitmServer server;
-	private final MitmKeyManager keyManager;
+	private final FixedKeyManager keyManager;
 	private final InetSocketAddress sourceAddress;
 	private final InetSocketAddress address;
 	private SSLSocket sniSocket;
 
-	public HostnameSniMatcher(MitmServer server, MitmKeyManager keyManager, InetSocketAddress sourceAddress, InetSocketAddress address) {
+	public HostnameSniMatcher(MitmServer server, FixedKeyManager keyManager, InetSocketAddress sourceAddress, InetSocketAddress address) {
 		super(StandardConstants.SNI_HOST_NAME);
 		this.server = server;
 		this.keyManager = keyManager;

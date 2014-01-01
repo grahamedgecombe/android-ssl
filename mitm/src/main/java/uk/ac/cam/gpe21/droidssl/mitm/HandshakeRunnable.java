@@ -1,6 +1,6 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.MitmKeyManager;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.FixedKeyManager;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
@@ -130,7 +130,7 @@ public final class HandshakeRunnable implements Runnable {
 				 * client (i.e. the phone) and the MITM server (i.e. us), which
 				 * will serve the certificate faked in the previous line.
 				 */
-				MitmKeyManager keyManager = new MitmKeyManager(server.getPrivateKey(), fakeChain);
+				FixedKeyManager keyManager = new FixedKeyManager(server.getPrivateKey(), fakeChain);
 				SSLSocket secureSocket = createSecureSocket(socket, keyManager);
 				secureSocket.setUseClientMode(false);
 
@@ -198,7 +198,7 @@ public final class HandshakeRunnable implements Runnable {
 		}
 	}
 
-	private SSLSocket createSecureSocket(Socket socket, MitmKeyManager keyManager) throws IOException {
+	private SSLSocket createSecureSocket(Socket socket, FixedKeyManager keyManager) throws IOException {
 		// this is what the Sun SSLSocketImpl does for the host/port value
 		String host = socket.getInetAddress().getHostAddress();
 		int port = socket.getPort();
