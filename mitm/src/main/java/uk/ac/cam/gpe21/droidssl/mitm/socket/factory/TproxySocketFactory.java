@@ -22,10 +22,17 @@ public final class TproxySocketFactory extends SocketFactory {
 
 	@Override
 	public Socket openSocket(InetSocketAddress source, InetSocketAddress destination) throws IOException {
-		// TODO: this won't work for SNI yet, as we open a second socket while
-		// the first socket is still open and they cannot share the same source
-		// address.
 		Socket socket = SocketUtils.openTproxySocket();
+
+		/*
+		 * We open two connections in quick succession (the first is to detect
+		 * the use of SSL, the second is the actual connection that will be
+		 * used for the rest of the MITM.) Therefore we need to enable
+		 * SO_REUSEADDR to stop bind() from failing with the same source
+		 * address in TPROXY mode.
+		 */
+		socket.setReuseAddress(true);
+
 		socket.bind(source);
 		socket.connect(destination);
 		return socket;
