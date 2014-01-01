@@ -1,11 +1,11 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.FixedKeyManager;
-import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
 
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -13,8 +13,6 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -75,107 +73,50 @@ public final class HandshakeRunnable implements Runnable {
 			}
 
 			/*
-			 * Connect to the target server.
+			 * Check if the destination server supports SSL or not. If it does
+			 * not support SSL we fall back to copying the data directly which
+			 * allows us to intercept plaintext communication (e.g. HTTP).
 			 */
-			logger.info("Connecting to " + ip.getHostAddress() + ":" + port + " without SNI...");
-
-			SocketFactory factory = server.getSocketFactory();
-			SSLSocket secureOther = factory.openSslSocket(sourceAddr, addr);
-
-			/*
-			 * Normally the handshake is only started when reading or writing
-			 * the first byte of data. However, we start it immediately so we
-			 * can get the server's real certificate before we start relaying
-			 * data between the server and client.
-			 *
-			 * We also detect if the handshake fails, and if so, fall back to
-			 * forwarding the data directly (which will only let us intercept
-			 * plaintext communication).
-			 */
-			boolean ssl;
-			Socket other;
-			try {
-				secureOther.startHandshake();
-
-				/*
-				 * If we get here, the handshake worked. Use the working
-				 * SSLSocket to relay the decrypted data.
-				 */
-				ssl = true;
-				other = secureOther;
-			} catch (IOException ex) {
-				logger.log(Level.WARNING, "Handshake with destination failed, falling back to plaintext mode:", ex);
-
-				/*
-				 * If we get here, the SSL handshake failed. Open a normal
-				 * socket to relay the data instead (which will probably be
-				 * a protocol other than SSL - e.g. plaintext HTTP).
-				 */
-				ssl = false;
-				other = factory.openSocket(sourceAddr, addr);
-			}
+			boolean ssl = isSsl(sourceAddr, addr);
 
 			IoCopyRunnable clientToServerCopier, serverToClientCopier;
 			if (ssl) {
 				/*
-				 * Generate a fake certificate chain, using the same CN/SANs
-				 * from the certificate found by connecting to the destination
-				 * *without* SNI enabled.
+				 * Layer an SSLSocket on top of the socket between the source
+				 * (i.e. the phone) and the MITM box (i.e. us).
 				 */
-				CertificateCache certificateCache = server.getCertificateCache();
-				X509Certificate[] fakeChain = certificateCache.getChain(server, secureOther);
-
-				/*
-				 * Open an SSLSocket running on top of the socket between the
-				 * client (i.e. the phone) and the MITM server (i.e. us), which
-				 * will serve the certificate faked in the previous line.
-				 */
-				FixedKeyManager keyManager = new FixedKeyManager(server.getPrivateKey(), fakeChain);
+				MitmKeyManager keyManager = new MitmKeyManager(server, sourceAddr, addr);
 				SSLSocket secureSocket = createSecureSocket(socket, keyManager);
 				secureSocket.setUseClientMode(false);
 
 				/*
-				 * Add HostnameSniMatcher to this socket and start the
-				 * handshake. This will detect if the client connected to the
-				 * MITM server using SNI. If so, it opens another connection to
-				 * the destination server *with* SNI enabled. If this is
-				 * successful, it will replace the certificate currently set in
-				 * the MitmKeyManager with one faked using the certificate
-				 * found in the SNI connection to the destination (which could
-				 * be different to the one found without SNI).
+				 * Perform handshake with the phone. During the handshake, the
+				 * MitmKeyManager will connect to the destination server,
+				 * fetch the real certificate, create a faked certificate
+				 * (possibly using the same CN/SAN, if --matching-hostname is
+				 * set) and present the faked certificate to the client.
 				 *
-				 * Note: we had to grab the certificate served by the server
-				 * without SNI before (rather than after) discovering if SNI is
-				 * not used, because we will only know if SNI was used by the
-				 * client *after* startHandshake() has returned, by which time
-				 * we need to have already picked a certificate to serve to the
-				 * client.
+				 * After the handshake is complete we fetch the socket the
+				 * MitmKeyManager made to the destination server so it can be
+				 * used to shuttle data between the MITM box and the two
+				 * endpoints (with the code directly below).
 				 */
-				HostnameSniMatcher sniMatcher = new HostnameSniMatcher(server, keyManager, sourceAddr, addr);
-				SSLParameters params = secureSocket.getSSLParameters();
-				params.setSNIMatchers(Arrays.<SNIMatcher>asList(sniMatcher));
-				secureSocket.setSSLParameters(params);
-
 				secureSocket.startHandshake();
+				Socket other = keyManager.getSocket();
 
 				/*
-				 * If SNI was supported, we'll be connected to the real
-				 * destination server on a different socket now, so we need to
-				 * replace our reference to the destination server socket with
-				 * the SNI-enabled one from HostnameSniMatcher.
-				 */
-				if (sniMatcher.isSniSupported()) {
-					logger.info("SNI handshake successful, replaced socket with SNI socket.");
-					other = sniMatcher.getSniSocket();
-				}
-
-				/*
-				 * Create IoCopyRunnables which operate on the intercepted
+				 * Create IoCopyRunnables which operate on the intercepted,
 				 * decrypted data.
 				 */
 				clientToServerCopier = new IoCopyRunnable(secureSocket.getInputStream(), other.getOutputStream());
 				serverToClientCopier = new IoCopyRunnable(other.getInputStream(), secureSocket.getOutputStream());
 			} else {
+				/*
+				 * Open plaintext socket to the destination server.
+				 */
+				SocketFactory socketFactory = server.getSocketFactory();
+				Socket other = socketFactory.openSocket(sourceAddr, addr);
+
 				/*
 				 * Create IoCopyRunnables which operate on the data sent
 				 * between the sockets directly (which may or may not be
@@ -198,7 +139,34 @@ public final class HandshakeRunnable implements Runnable {
 		}
 	}
 
-	private SSLSocket createSecureSocket(Socket socket, FixedKeyManager keyManager) throws IOException {
+	/**
+	 * Checks if a remote server is running SSL by trying to start a handshake.
+	 * @param sourceAddr The source address to spoof (used only if TPROXY is
+	 *                   enabled).
+	 * @param addr The destination address of the server to probe.
+	 * @return {@code true} if the server is running SSL, {@code} false if not.
+	 */
+	private boolean isSsl(InetSocketAddress sourceAddr, InetSocketAddress addr) {
+		SocketFactory factory = server.getSocketFactory();
+		try (SSLSocket socket = factory.openSslSocket(sourceAddr, addr)) {
+			socket.startHandshake();
+			return true;
+		} catch (IOException ex) {
+			logger.log(Level.WARNING, "SSL handshake with destination failed:", ex);
+			return false;
+		}
+	}
+
+	/**
+	 * Create an {@link SSLSocket}, layered above the given {@link Socket},
+	 * which uses the given {@link MitmKeyManager}.
+	 * @param socket The base socket.
+	 * @param keyManager They key manager.
+	 * @return An {@link SSLSocket} layered on top of the base socket.
+	 * @throws IOException if an I/O error occurs, or if the socket could not
+	 *                     be created due to a key or algorithm error.
+	 */
+	private SSLSocket createSecureSocket(Socket socket, MitmKeyManager keyManager) throws IOException {
 		// this is what the Sun SSLSocketImpl does for the host/port value
 		String host = socket.getInetAddress().getHostAddress();
 		int port = socket.getPort();

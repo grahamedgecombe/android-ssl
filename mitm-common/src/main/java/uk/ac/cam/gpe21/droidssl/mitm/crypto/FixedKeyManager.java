@@ -20,11 +20,6 @@ public final class FixedKeyManager implements X509KeyManager {
 		this.key = key;
 	}
 
-	@Deprecated
-	public void setChain(X509Certificate[] chain) {
-		this.chain = chain;
-	}
-
 	@Override
 	public String[] getClientAliases(String keyType, Principal[] issuers) {
 		throw new UnsupportedOperationException();
