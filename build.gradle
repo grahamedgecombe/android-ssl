@@ -47,6 +47,7 @@ idea {
 
 project(':analysis') {
 	apply plugin: 'java'
+	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
 	sourceCompatibility = 1.7
@@ -55,6 +56,16 @@ project(':analysis') {
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile name: 'soot', version: '20131213'
+	}
+
+	fatJar {
+		manifest {
+			attributes 'Main-Class': 'uk.ac.cam.gpe21.droidssl.analysis.StaticAnalyser'
+		}
+
+		exclude 'META-INF/*.DSA'
+		exclude 'META-INF/*.RSA'
+		exclude 'META-INF/*.SF'
 	}
 }
 
