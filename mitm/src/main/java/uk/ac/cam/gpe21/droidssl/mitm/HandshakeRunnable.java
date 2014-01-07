@@ -77,7 +77,7 @@ public final class HandshakeRunnable implements Runnable {
 			 * not support SSL we fall back to copying the data directly which
 			 * allows us to intercept plaintext communication (e.g. HTTP).
 			 */
-			boolean ssl = isSsl(sourceAddr, addr);
+			boolean ssl = isSsl(addr);
 
 			IoCopyRunnable clientToServerCopier, serverToClientCopier;
 			if (ssl) {
@@ -141,14 +141,17 @@ public final class HandshakeRunnable implements Runnable {
 
 	/**
 	 * Checks if a remote server is running SSL by trying to start a handshake.
-	 * @param sourceAddr The source address to spoof (used only if TPROXY is
-	 *                   enabled).
+	 *
+	 * NOTE: this method explicitly picks a random, local source address even
+	 * if TPROXY mode is enabled. Otherwise, the socket will sometimes not
+	 * close quickly enough, which leads to {@code bind()} on the second socket
+	 * failing (even though {@code SO_REUSEADDR} is enabled).
 	 * @param addr The destination address of the server to probe.
-	 * @return {@code true} if the server is running SSL, {@code} false if not.
+	 * @return {@code true} if the server is running SSL, {@code false} if not.
 	 */
-	private boolean isSsl(InetSocketAddress sourceAddr, InetSocketAddress addr) {
+	private boolean isSsl(InetSocketAddress addr) {
 		SocketFactory factory = server.getSocketFactory();
-		try (SSLSocket socket = factory.openSslSocket(sourceAddr, addr)) {
+		try (SSLSocket socket = factory.openSslSocket(new InetSocketAddress(0), addr)) {
 			socket.startHandshake();
 			return true;
 		} catch (IOException ex) {
