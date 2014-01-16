@@ -29,6 +29,7 @@ public final class Session {
 
 	private final InetSocketAddress source, destination;
 	private State state = State.OPEN;
+	private Throwable failureReason;
 
 	public Session(InetSocketAddress source, InetSocketAddress destination) {
 		this.source = source;
@@ -49,6 +50,14 @@ public final class Session {
 
 	public void setState(State state) {
 		this.state = state;
+	}
+
+	public Throwable getFailureReason() {
+		return failureReason;
+	}
+
+	public void setFailureReason(Throwable failureReason) {
+		this.failureReason = failureReason;
 	}
 
 	@Override

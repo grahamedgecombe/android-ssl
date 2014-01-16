@@ -9,6 +9,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 	private JTabbedPane tabs;
 
 	private JLabel state, source, dest;
+	private JTextArea exception;
 
 	public GraphicalUserInterface() throws InvocationTargetException, InterruptedException {
 		EventQueue.invokeAndWait(new Runnable() {
@@ -65,6 +68,10 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 				JPanel infoContainer = new JPanel();
 				infoContainer.setLayout(new BorderLayout());
 				infoContainer.add(BorderLayout.NORTH, info);
+
+				exception = new JTextArea();
+				exception.setOpaque(false);
+				infoContainer.add(BorderLayout.CENTER, exception);
 
 				tabs = new JTabbedPane();
 				tabs.add("Info", infoContainer);
@@ -122,7 +129,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 				}
 
 				textArea.append(HexFormat.format(buf, len));
-				textArea.append("\n");
+				textArea.append("\n\n");
 			}
 		});
 	}
@@ -157,6 +164,8 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 	public void valueChanged(ListSelectionEvent evt) {
 		Session session = sessions.getSelectedValue();
 		if (session == null) {
+			exception.setText("");
+
 			state.setOpaque(false);
 			state.setText("-");
 
@@ -168,6 +177,17 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 			tabs.setEnabledAt(2, false);
 		} else {
 			Session.State state = session.getState();
+			if (state == Session.State.FAILED) {
+				try (StringWriter buf = new StringWriter();
+					 PrintWriter writer = new PrintWriter(buf)) {
+					session.getFailureReason().printStackTrace(writer);
+					exception.setText(buf.toString());
+				} catch (IOException ex) {
+					/* ignore - can never happen */
+				}
+			} else {
+				exception.setText("");
+			}
 
 			this.state.setOpaque(true);
 			this.state.setText(state.toString());

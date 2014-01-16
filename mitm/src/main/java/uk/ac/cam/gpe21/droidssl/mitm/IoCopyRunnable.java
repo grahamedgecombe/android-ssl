@@ -36,6 +36,7 @@ public final class IoCopyRunnable implements Runnable {
 			ui.onClose(session);
 		} catch (IOException ex) {
 			session.setState(Session.State.FAILED); // TODO sync
+			session.setFailureReason(ex); // TODO sync
 			ui.onFailure(session, ex);
 		}
 	}
