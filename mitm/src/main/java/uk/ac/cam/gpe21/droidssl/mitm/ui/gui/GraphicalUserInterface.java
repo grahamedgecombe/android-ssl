@@ -71,6 +71,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 
 				exception = new JTextArea();
 				exception.setOpaque(false);
+				exception.setEditable(false);
 				infoContainer.add(BorderLayout.CENTER, exception);
 
 				tabs = new JTabbedPane();
