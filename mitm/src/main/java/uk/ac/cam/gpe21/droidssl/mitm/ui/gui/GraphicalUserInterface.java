@@ -188,6 +188,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 
 			tabs.setEnabledAt(1, false);
 			tabs.setEnabledAt(2, false);
+			tabs.setSelectedIndex(0);
 		} else {
 			Session.State state = session.getState();
 			if (state == Session.State.FAILED) {
