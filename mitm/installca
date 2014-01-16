@@ -1,0 +1,2 @@
+#!/bin/sh -e
+adb push trusted.crt /sdcard/trusted.crt
