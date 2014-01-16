@@ -9,7 +9,8 @@ public final class Session {
 	public enum State {
 		OPEN(Color.GREEN, "Open"),
 		CLOSED(Color.GRAY, "Closed"),
-		FAILED(Color.RED, "Failed");
+		FAILED(Color.RED, "Failed"),
+		MAYBE_FAILED(Color.ORANGE, "Maybe Failed"); /* means connection closed without sending data */
 
 		private final Color color;
 		private final String description;

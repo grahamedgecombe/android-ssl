@@ -25,17 +25,29 @@ public final class IoCopyRunnable implements Runnable {
 	@Override
 	public void run() {
 		try {
+			boolean receivedData = false;
 			byte[] buf = new byte[4096];
 			int n;
 			while ((n = in.read(buf, 0, buf.length)) != -1) {
+				if (n > 0)
+					receivedData = true;
+
 				ui.onData(session, receive, buf, n);
 				out.write(buf, 0, n);
 			}
 
-			session.setState(Session.State.CLOSED); // TODO maybe closed() would be better?
+			/*
+			 * If the device (our receiving end) closed the connection and did
+			 * not send any data, we deem it to have 'maybe' failed (typically
+			 * on Android when an application deems the cert invalid it
+			 * immediately closes the connection - of course, a connection
+			 * could have no data sent over it, but this would not be a very
+			 * interesting connection anyway!)
+			 */
+			session.setState((receive && !receivedData) ? Session.State.MAYBE_FAILED : Session.State.CLOSED);
 			ui.onClose(session);
 		} catch (IOException ex) {
-			session.setState(Session.State.FAILED); // TODO maybe failed() would be better?
+			session.setState(Session.State.FAILED);
 			session.setFailureReason(ex);
 			ui.onFailure(session, ex);
 		}
