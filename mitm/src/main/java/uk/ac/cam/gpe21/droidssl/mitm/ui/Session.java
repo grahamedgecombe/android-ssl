@@ -1,5 +1,7 @@
 package uk.ac.cam.gpe21.droidssl.mitm.ui;
 
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateKey;
+
 import java.awt.*;
 import java.net.InetSocketAddress;
 
@@ -30,6 +32,7 @@ public final class Session {
 	private final InetSocketAddress source, destination;
 	private State state = State.OPEN;
 	private Throwable failureReason;
+	private CertificateKey key;
 
 	public Session(InetSocketAddress source, InetSocketAddress destination) {
 		this.source = source;
@@ -42,6 +45,18 @@ public final class Session {
 
 	public InetSocketAddress getDestination() {
 		return destination;
+	}
+
+	public boolean isSsl() {
+		return key != null;
+	}
+
+	public CertificateKey getKey() {
+		return key;
+	}
+
+	public void setKey(CertificateKey key) {
+		this.key = key;
 	}
 
 	public State getState() {

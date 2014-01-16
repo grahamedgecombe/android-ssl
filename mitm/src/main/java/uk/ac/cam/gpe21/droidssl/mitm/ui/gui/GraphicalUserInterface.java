@@ -1,5 +1,7 @@
 package uk.ac.cam.gpe21.droidssl.mitm.ui.gui;
 
+import joptsimple.internal.Strings;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateKey;
 import uk.ac.cam.gpe21.droidssl.mitm.ui.Session;
 import uk.ac.cam.gpe21.droidssl.mitm.ui.UserInterface;
 import uk.ac.cam.gpe21.droidssl.mitm.util.HexFormat;
@@ -26,7 +28,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 	private Map<Session, JScrollPane> transmitScroll = new HashMap<>();
 	private JTabbedPane tabs;
 
-	private JLabel state, source, dest;
+	private JLabel state, source, dest, cn, sans;
 	private JTextArea exception;
 
 	public GraphicalUserInterface() throws InvocationTargetException, InterruptedException {
@@ -64,6 +66,12 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 
 				info.add(new JLabel("Destination:"));
 				info.add(dest = new JLabel("-"));
+
+				info.add(new JLabel("Certificate CN:"));
+				info.add(cn = new JLabel("-"));
+
+				info.add(new JLabel("Certificate SANs:"));
+				info.add(sans = new JLabel("-"));
 
 				JPanel infoContainer = new JPanel();
 				infoContainer.setLayout(new BorderLayout());
@@ -174,6 +182,10 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 
 			dest.setText("-");
 
+			cn.setText("-");
+
+			sans.setText("-");
+
 			tabs.setEnabledAt(1, false);
 			tabs.setEnabledAt(2, false);
 		} else {
@@ -199,6 +211,15 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 
 			InetSocketAddress destAddr = session.getDestination();
 			dest.setText(destAddr.getAddress().getHostAddress() + ":" + destAddr.getPort() + " (" + destAddr.getHostName() + ")");
+
+			if (session.isSsl()) {
+				CertificateKey key = session.getKey();
+				cn.setText(key.getCn());
+				sans.setText(Strings.join(key.getSans(), ", "));
+			} else {
+				cn.setText("-");
+				sans.setText("-");
+			}
 
 			tabs.setComponentAt(1, receiveScroll.get(session));
 			tabs.setComponentAt(2, transmitScroll.get(session));

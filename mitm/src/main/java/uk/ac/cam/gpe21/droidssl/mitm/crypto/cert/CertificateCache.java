@@ -41,12 +41,14 @@ public final class CertificateCache {
 	 *     <li>Generating the certificate chain (which consists of the fake
 	 *         leaf certificate and the MITM server's fake CA certificate.)</li>
 	 * </ul>
+	 *
 	 * @param server The {@link MitmServer}.
 	 * @param socket The socket to extract the leaf certificate from.
-	 * @return A faked certificate chain.
+	 * @return A {@link CertificateCacheResult}, which contains a faked
+	 *         certificate chain.
 	 * @throws SSLPeerUnverifiedException if {@link SSLSession#getPeerCertificates()} fails.
 	 */
-	public X509Certificate[] getChain(MitmServer server, SSLSocket socket) throws SSLPeerUnverifiedException {
+	public CertificateCacheResult getChain(MitmServer server, SSLSocket socket) throws SSLPeerUnverifiedException {
 		HostnameFinder hostnameFinder = server.getHostnameFinder();
 		X509Certificate fakeCa = server.getCertificateAuthority().getJcaCertificate();
 
@@ -56,9 +58,9 @@ public final class CertificateCache {
 
 		X509Certificate fakeLeaf = get(key);
 
-		return new X509Certificate[] {
+		return new CertificateCacheResult(key, new X509Certificate[] {
 			fakeLeaf,
 			fakeCa
-		};
+		});
 	}
 }

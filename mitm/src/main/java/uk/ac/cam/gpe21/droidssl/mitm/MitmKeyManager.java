@@ -1,6 +1,8 @@
 package uk.ac.cam.gpe21.droidssl.mitm;
 
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCacheResult;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateKey;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
 
 import javax.net.ssl.*;
@@ -17,6 +19,7 @@ public final class MitmKeyManager implements X509KeyManager {
 	private final InetSocketAddress sourceAddr, addr;
 	private SSLSocket socket;
 	private X509Certificate[] chain;
+	private CertificateKey key;
 
 	public MitmKeyManager(MitmServer server, InetSocketAddress sourceAddr, InetSocketAddress addr) {
 		this.server = server;
@@ -26,6 +29,10 @@ public final class MitmKeyManager implements X509KeyManager {
 
 	public Socket getSocket() {
 		return socket;
+	}
+
+	public CertificateKey getKey() {
+		return key;
 	}
 
 	@Override
@@ -84,7 +91,9 @@ public final class MitmKeyManager implements X509KeyManager {
 			 * Generate a fake certificate.
 			 */
 			CertificateCache certificateCache = server.getCertificateCache();
-			chain = certificateCache.getChain(server, this.socket);
+			CertificateCacheResult result = certificateCache.getChain(server, this.socket);
+			chain = result.getChain();
+			key = result.getKey();
 		} catch (IOException ex) {
 			throw new UncheckedIOException(ex);
 		}

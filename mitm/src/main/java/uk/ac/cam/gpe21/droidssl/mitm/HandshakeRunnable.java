@@ -111,6 +111,14 @@ public final class HandshakeRunnable implements Runnable {
 				Socket other = keyManager.getSocket();
 
 				/*
+				 * Update CertificateKey reference in the Session class. This
+				 * allows the GUI to display the CN and SANs of the certificate
+				 * (which in turn is useful for identifying the service being
+				 * intercepted).
+				 */
+				session.setKey(keyManager.getKey());
+
+				/*
 				 * Create IoCopyRunnables which operate on the intercepted,
 				 * decrypted data.
 				 */
@@ -141,6 +149,7 @@ public final class HandshakeRunnable implements Runnable {
 			executor.execute(serverToClientCopier);
 		} catch (IOException ex) {
 			// TODO ensure everything is closed after a failure
+			// TODO can we do anything about these in the GUI?
 			logger.log(Level.WARNING, "Handshake failed:", ex);
 		}
 	}
