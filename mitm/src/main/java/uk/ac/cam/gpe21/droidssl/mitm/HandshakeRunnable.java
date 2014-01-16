@@ -47,6 +47,13 @@ public final class HandshakeRunnable implements Runnable {
 			InetAddress ip = addr.getAddress();
 			int port = addr.getPort();
 
+			/*
+			 * Trigger reverse DNS lookups to happen straight away (or they
+			 * clog up the GUI thread later on).
+			 */
+			sourceAddr.getAddress().getHostName();
+			addr.getAddress().getHostName();
+
 			logger.info("Accepted connection from " + sourceAddr + " -> " + addr);
 
 			Session session = new Session(sourceAddr, addr); /* TODO */
