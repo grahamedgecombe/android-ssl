@@ -2,6 +2,8 @@ package uk.ac.cam.gpe21.droidssl.mitm;
 
 import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.DestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
+import uk.ac.cam.gpe21.droidssl.mitm.ui.Session;
+import uk.ac.cam.gpe21.droidssl.mitm.ui.UserInterface;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -47,6 +49,8 @@ public final class HandshakeRunnable implements Runnable {
 
 			logger.info("Accepted connection from " + sourceAddr + " -> " + addr);
 
+			Session session = new Session(sourceAddr, addr); /* TODO */
+
 			/*
 			 * Check if the address is a loopback or local address, and if the
 			 * port matches the port which the MITM server listens on. If so,
@@ -80,6 +84,8 @@ public final class HandshakeRunnable implements Runnable {
 			boolean ssl = isSsl(addr);
 
 			IoCopyRunnable clientToServerCopier, serverToClientCopier;
+			UserInterface ui = server.getUserInterface();
+			ui.onOpen(session);
 			if (ssl) {
 				/*
 				 * Layer an SSLSocket on top of the socket between the source
@@ -108,8 +114,8 @@ public final class HandshakeRunnable implements Runnable {
 				 * Create IoCopyRunnables which operate on the intercepted,
 				 * decrypted data.
 				 */
-				clientToServerCopier = new IoCopyRunnable(secureSocket.getInputStream(), other.getOutputStream());
-				serverToClientCopier = new IoCopyRunnable(other.getInputStream(), secureSocket.getOutputStream());
+				clientToServerCopier = new IoCopyRunnable(session, true,  secureSocket.getInputStream(), other.getOutputStream(), ui);
+				serverToClientCopier = new IoCopyRunnable(session, false, other.getInputStream(), secureSocket.getOutputStream(), ui);
 			} else {
 				/*
 				 * Open plaintext socket to the destination server.
@@ -122,8 +128,8 @@ public final class HandshakeRunnable implements Runnable {
 				 * between the sockets directly (which may or may not be
 				 * plaintext).
 				 */
-				clientToServerCopier = new IoCopyRunnable(socket.getInputStream(), other.getOutputStream());
-				serverToClientCopier = new IoCopyRunnable(other.getInputStream(), socket.getOutputStream());
+				clientToServerCopier = new IoCopyRunnable(session, true,  socket.getInputStream(), other.getOutputStream(), ui);
+				serverToClientCopier = new IoCopyRunnable(session, false, other.getInputStream(), socket.getOutputStream(), ui);
 			}
 
 			/*

@@ -19,12 +19,16 @@ import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.TproxyDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.StandardSocketFactory;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.TproxySocketFactory;
+import uk.ac.cam.gpe21.droidssl.mitm.ui.gui.GraphicalUserInterface;
+import uk.ac.cam.gpe21.droidssl.mitm.ui.headless.HeadlessUserInterface;
+import uk.ac.cam.gpe21.droidssl.mitm.ui.UserInterface;
 import uk.ac.cam.gpe21.droidssl.mitm.util.SocketAddressParser;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -44,7 +48,7 @@ public final class MitmServer {
 		return ctx.getSocketFactory();
 	}
 
-	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException, InvocationTargetException, InterruptedException {
 		OptionParser parser = new OptionParser();
 
 		parser.accepts("fixed").withRequiredArg();
@@ -56,6 +60,8 @@ public final class MitmServer {
 
 		parser.accepts("trusted");
 		parser.accepts("untrusted");
+
+		parser.accepts("gui");
 
 		OptionSet set = parser.parse(args);
 
@@ -101,7 +107,14 @@ public final class MitmServer {
 			return;
 		}
 
-		MitmServer server = new MitmServer(socketFactory, destinationFinder, hostnameFinder, caPrefix);
+		UserInterface ui;
+		if (set.has("gui")) {
+			ui = new GraphicalUserInterface();
+		} else {
+			ui = new HeadlessUserInterface();
+		}
+
+		MitmServer server = new MitmServer(socketFactory, destinationFinder, hostnameFinder, caPrefix, ui);
 		server.start();
 	}
 
@@ -109,16 +122,18 @@ public final class MitmServer {
 	private final SocketFactory socketFactory;
 	private final DestinationFinder destinationFinder;
 	private final HostnameFinder hostnameFinder;
+	private final UserInterface userInterface;
 	private final CertificateAuthority certificateAuthority;
 	private final AsymmetricCipherKeyPair keyPair;
 	private final PrivateKey privateKey;
 	private final CertificateCache certificateCache;
 	private final ServerSocket serverSocket;
 
-	public MitmServer(SocketFactory socketFactory, DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+	public MitmServer(SocketFactory socketFactory, DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix, UserInterface userInterface) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
 		this.socketFactory = socketFactory;
 		this.destinationFinder = destinationFinder;
 		this.hostnameFinder = hostnameFinder;
+		this.userInterface = userInterface;
 		this.certificateAuthority = new CertificateAuthority(Paths.get(caPrefix + ".crt"), Paths.get(caPrefix + ".key"));
 		this.keyPair = new KeyPairGenerator().generate();
 		this.privateKey = KeyUtils.convertToJca(keyPair).getPrivate();
@@ -147,6 +162,10 @@ public final class MitmServer {
 
 	public HostnameFinder getHostnameFinder() {
 		return hostnameFinder;
+	}
+
+	public UserInterface getUserInterface() {
+		return userInterface;
 	}
 
 	public CertificateAuthority getCertificateAuthority() {
