@@ -45,19 +45,36 @@ public final class Session {
 	}
 
 	public State getState() {
-		return state;
+		synchronized (this) {
+			return state;
+		}
 	}
 
 	public void setState(State state) {
-		this.state = state;
+		synchronized (this) {
+			/*
+			 * Only allow open->closed or open->failed transitions (or the fact
+			 * two threads run I/O can cause e.g. a failed to connection to
+			 * transition to closed, which stops the GUI from displaying the
+			 * exception).
+			 */
+			if (this.state != State.OPEN)
+				return;
+
+			this.state = state;
+		}
 	}
 
 	public Throwable getFailureReason() {
-		return failureReason;
+		synchronized (this) {
+			return failureReason;
+		}
 	}
 
 	public void setFailureReason(Throwable failureReason) {
-		this.failureReason = failureReason;
+		synchronized (this) {
+			this.failureReason = failureReason;
+		}
 	}
 
 	@Override

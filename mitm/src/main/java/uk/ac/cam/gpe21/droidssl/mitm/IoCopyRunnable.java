@@ -32,11 +32,11 @@ public final class IoCopyRunnable implements Runnable {
 				out.write(buf, 0, n);
 			}
 
-			session.setState(Session.State.CLOSED); // TODO sync
+			session.setState(Session.State.CLOSED); // TODO maybe closed() would be better?
 			ui.onClose(session);
 		} catch (IOException ex) {
-			session.setState(Session.State.FAILED); // TODO sync
-			session.setFailureReason(ex); // TODO sync
+			session.setState(Session.State.FAILED); // TODO maybe failed() would be better?
+			session.setFailureReason(ex);
 			ui.onFailure(session, ex);
 		}
 	}
