@@ -1,18 +1,26 @@
 package uk.ac.cam.gpe21.droidssl.analysis;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import soot.*;
 import soot.options.Options;
 import uk.ac.cam.gpe21.droidssl.analysis.trans.*;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public final class StaticAnalyser {
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
-		if (args.length != 1) {
+		OptionParser parser = new OptionParser();
+		parser.accepts("paddle");
+
+		OptionSet set = parser.parse(args);
+		List<?> apk = set.nonOptionArguments();
+		if (apk.size() != 1) {
 			System.out.println("Usage:");
-			System.out.println("  java -cp ... " + StaticAnalyser.class.getName() + " apkfile");
+			System.out.println("  java -cp ... " + StaticAnalyser.class.getName() + " [--paddle] apkfile");
 			System.exit(1);
 		}
 
@@ -29,7 +37,7 @@ public final class StaticAnalyser {
 			 * Set path to input APK.
 			 */
 			Options.v().set_src_prec(Options.src_prec_apk);
-			Options.v().set_process_dir(Collections.singletonList(args[0]));
+			Options.v().set_process_dir((List<String>) apk);
 
 			/*
 			 * Prevent Soot from outputting *.jimple files.
@@ -51,10 +59,14 @@ public final class StaticAnalyser {
 			Options.v().set_allow_phantom_refs(true);
 
 			/*
-			 * Enable the SPARK points-to analysis.
+			 * Enable the SPARK or Paddle points-to analysis.
 			 */
 			Options.v().set_whole_program(true);
-			PhaseOptions.v().processPhaseOptions("cg.spark", "enabled:true");
+			if (set.has("paddle")) {
+				PhaseOptions.v().processPhaseOptions("cg.paddle", "enabled:true");
+			} else {
+				PhaseOptions.v().processPhaseOptions("cg.spark", "enabled:true");
+			}
 
 			Set<Vulnerability> vulnerabilities = new HashSet<>();
 
