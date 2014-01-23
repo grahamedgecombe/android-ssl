@@ -76,6 +76,7 @@ public final class StaticAnalyser {
 				new AbstractVerifierAnalyser(vulnerabilities),
 
 				/* find places where HostnameVerifiers are used */
+				new InitHostnameVerifierAnalyser(vulnerabilities),
 				new DefaultHostnameVerifierAnalyser(vulnerabilities),
 				new HttpsUrlConnectionAnalyser(vulnerabilities),
 
@@ -83,6 +84,7 @@ public final class StaticAnalyser {
 				new TrustManagerAnalyser(vulnerabilities),
 
 				/* find places where X509TrustManagers are used */
+				new InitTrustManagerAnalyser(vulnerabilities),
 				new SslContextAnalyser(vulnerabilities)
 			);
 
