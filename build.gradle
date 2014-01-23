@@ -55,7 +55,7 @@ project(':analysis') {
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
-		compile name: 'soot', version: '20131213'
+		compile name: 'soot', version: '20140123'
 	}
 
 	fatJar {
@@ -78,7 +78,7 @@ project(':soot-tests') {
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
-		compile name: 'soot', version: '20131213'
+		compile name: 'soot', version: '20140123'
 	}
 }
 
@@ -112,7 +112,7 @@ project(':mitm') {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
 		compile group: 'net.java.dev.jna', name: 'jna', version: '4.0.0'
-		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.5'
+		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.6'
 	}
 
 	fatJar {
@@ -151,7 +151,7 @@ project(':mitm-test-client') {
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
-		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.5'
+		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.6'
 	}
 
 	fatJar {
