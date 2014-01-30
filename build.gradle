@@ -298,6 +298,18 @@ project(':mitm-test-sni-server') {
 	}
 }
 
+project(':simple-ssl') {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+
+	dependencies {
+		testCompile group: 'junit', name: 'junit', version: '4.11'
+	}
+}
+
 project(':test-hv') {
 	apply plugin: 'android'
 	apply plugin: 'idea'
