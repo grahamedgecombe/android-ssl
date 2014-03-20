@@ -12,4 +12,9 @@ public final class StandardHostnameFinder extends HostnameFinder {
 		String[] sans = CertificateUtils.extractSans(certificate);
 		return new CertificateKey(cn, sans);
 	}
+
+	@Override
+	public String toString() {
+		return "matching hostname";
+	}
 }

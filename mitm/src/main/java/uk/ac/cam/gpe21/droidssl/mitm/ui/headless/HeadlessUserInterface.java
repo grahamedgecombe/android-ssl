@@ -8,6 +8,11 @@ import java.io.IOException;
 
 public final class HeadlessUserInterface extends UserInterface {
 	@Override
+	public void init(String title, String caPrefix, String hostnameFinder) {
+		/* empty */
+	}
+
+	@Override
 	public void onOpen(Session session) {
 		/* empty */
 	}

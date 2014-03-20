@@ -100,6 +100,16 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 	}
 
 	@Override
+	public void init(final String title, final String caPrefix, final String hostnameFinder) {
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				frame.setTitle(frame.getTitle() + " (" + title + ", " + caPrefix + ", " + hostnameFinder + ")");
+			}
+		});
+	}
+
+	@Override
 	public void onOpen(final Session session) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override

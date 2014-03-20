@@ -51,6 +51,10 @@ public final class MitmServer {
 	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException, InvocationTargetException, InterruptedException {
 		OptionParser parser = new OptionParser();
 
+		parser.accepts("title").withRequiredArg().defaultsTo("<untitled>");
+
+		parser.accepts("port").withRequiredArg().ofType(int.class).defaultsTo(8443);
+
 		parser.accepts("fixed").withRequiredArg();
 		parser.accepts("nat");
 		parser.accepts("tproxy");
@@ -114,11 +118,15 @@ public final class MitmServer {
 			ui = new HeadlessUserInterface();
 		}
 
-		MitmServer server = new MitmServer(socketFactory, destinationFinder, hostnameFinder, caPrefix, ui);
+		String title = (String) set.valueOf("title");
+		int port = (int) set.valueOf("port");
+
+		MitmServer server = new MitmServer(title, port, socketFactory, destinationFinder, hostnameFinder, caPrefix, ui);
 		server.start();
 	}
 
 	private final Executor executor = Executors.newCachedThreadPool();
+	private final String title;
 	private final SocketFactory socketFactory;
 	private final DestinationFinder destinationFinder;
 	private final HostnameFinder hostnameFinder;
@@ -129,16 +137,18 @@ public final class MitmServer {
 	private final CertificateCache certificateCache;
 	private final ServerSocket serverSocket;
 
-	public MitmServer(SocketFactory socketFactory, DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix, UserInterface userInterface) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+	public MitmServer(String title, int port, SocketFactory socketFactory, DestinationFinder destinationFinder, HostnameFinder hostnameFinder, String caPrefix, UserInterface userInterface) throws NoSuchAlgorithmException, KeyManagementException, IOException, KeyStoreException, CertificateException, NoSuchProviderException, UnrecoverableKeyException, InvalidKeySpecException {
+		this.title = title;
 		this.socketFactory = socketFactory;
 		this.destinationFinder = destinationFinder;
 		this.hostnameFinder = hostnameFinder;
 		this.userInterface = userInterface;
+		this.userInterface.init(title, caPrefix, hostnameFinder.toString());
 		this.certificateAuthority = new CertificateAuthority(Paths.get(caPrefix + ".crt"), Paths.get(caPrefix + ".key"));
 		this.keyPair = new KeyPairGenerator().generate();
 		this.privateKey = KeyUtils.convertToJca(keyPair).getPrivate();
 		this.certificateCache = new CertificateCache(new CertificateGenerator(certificateAuthority, keyPair));
-		this.serverSocket = socketFactory.openServerSocket(new InetSocketAddress(8443));
+		this.serverSocket = socketFactory.openServerSocket(new InetSocketAddress(port));
 	}
 
 	public void start() throws IOException, CertificateException {

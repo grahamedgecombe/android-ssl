@@ -11,4 +11,9 @@ public final class FakeHostnameFinder extends HostnameFinder {
 	public CertificateKey getHostname(X509Certificate certificate) {
 		return key;
 	}
+
+	@Override
+	public String toString() {
+		return "unmatching hostname";
+	}
 }
