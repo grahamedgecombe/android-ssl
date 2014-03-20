@@ -42,7 +42,7 @@ public final class StaticAnalyser {
 			/*
 			 * Prevent Soot from outputting *.jimple files.
 			 */
-			Options.v().set_output_format(Options.output_format_none);
+			Options.v().set_output_format(Options.output_format_jimple);
 
 			/*
 			 * Set the path to the Android SDK. Whilst Soot contains code to try to
@@ -107,7 +107,9 @@ public final class StaticAnalyser {
 			 * Perform the analysis.
 			 */
 			Scene.v().loadNecessaryClasses();
-			PackManager.v().runPacks();
+			//PackManager.v().runPacks();
+			Options.v().set_unfriendly_mode(true);
+			Main.main(new String[0]);
 
 			/*
 			 * Print out the list of vulnerabilities.
