@@ -230,6 +230,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 			InetSocketAddress destAddr = session.getDestination();
 			dest.setText(destAddr.getAddress().getHostAddress() + ":" + destAddr.getPort() + " (" + destAddr.getHostName() + ")");
 
+			// TODO would be nice to display SNI hostname
 			if (session.isSsl()) {
 				CertificateKey realKey = session.getRealKey();
 				realCn.setText(realKey.getCn());
