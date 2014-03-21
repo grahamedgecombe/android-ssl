@@ -33,7 +33,7 @@ public final class Session {
 	private final InetSocketAddress source, destination;
 	private State state = State.OPEN;
 	private Throwable failureReason;
-	private CertificateKey key;
+	private CertificateKey realKey, key;
 
 	public Session(InetSocketAddress source, InetSocketAddress destination) {
 		this.source = source;
@@ -50,6 +50,14 @@ public final class Session {
 
 	public boolean isSsl() {
 		return key != null;
+	}
+
+	public CertificateKey getRealKey() {
+		return realKey;
+	}
+
+	public void setRealKey(CertificateKey realKey) {
+		this.realKey = realKey;
 	}
 
 	public CertificateKey getKey() {

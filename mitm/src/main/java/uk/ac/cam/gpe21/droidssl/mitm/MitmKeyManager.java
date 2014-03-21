@@ -3,6 +3,7 @@ package uk.ac.cam.gpe21.droidssl.mitm;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCache;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateCacheResult;
 import uk.ac.cam.gpe21.droidssl.mitm.crypto.cert.CertificateKey;
+import uk.ac.cam.gpe21.droidssl.mitm.crypto.hostname.StandardHostnameFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
 
 import javax.net.ssl.*;
@@ -12,14 +13,16 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 
 public final class MitmKeyManager implements X509KeyManager {
 	private final MitmServer server;
+	private final StandardHostnameFinder realHostnameFinder = new StandardHostnameFinder();
 	private final InetSocketAddress sourceAddr, addr;
 	private SSLSocket socket;
 	private X509Certificate[] chain;
-	private CertificateKey key;
+	private CertificateKey realKey, key;
 
 	public MitmKeyManager(MitmServer server, InetSocketAddress sourceAddr, InetSocketAddress addr) {
 		this.server = server;
@@ -29,6 +32,10 @@ public final class MitmKeyManager implements X509KeyManager {
 
 	public Socket getSocket() {
 		return socket;
+	}
+
+	public CertificateKey getRealKey() {
+		return realKey;
 	}
 
 	public CertificateKey getKey() {
@@ -86,6 +93,13 @@ public final class MitmKeyManager implements X509KeyManager {
 				this.socket = socketFactory.openSslSocket(sourceAddr, addr);
 			}
 			this.socket.startHandshake();
+
+			/*
+			 * Find real CN/SANs.
+			 */
+			Certificate[] realChain = this.socket.getSession().getPeerCertificates(); // TODO de-dup with code in CertificateCache
+			X509Certificate realLeaf = (X509Certificate) realChain[0];
+			realKey = realHostnameFinder.getHostname(realLeaf);
 
 			/*
 			 * Generate a fake certificate.

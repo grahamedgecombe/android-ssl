@@ -123,6 +123,7 @@ public final class HandshakeRunnable implements Runnable {
 				 * (which in turn is useful for identifying the service being
 				 * intercepted).
 				 */
+				session.setRealKey(keyManager.getRealKey());
 				session.setKey(keyManager.getKey());
 
 				/*

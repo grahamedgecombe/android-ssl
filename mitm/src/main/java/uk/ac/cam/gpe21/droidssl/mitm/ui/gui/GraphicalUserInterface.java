@@ -28,7 +28,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 	private Map<Session, JScrollPane> transmitScroll = new HashMap<>();
 	private JTabbedPane tabs;
 
-	private JLabel state, source, dest, cn, sans;
+	private JLabel state, source, dest, realCn, realSans, cn, sans;
 	private JTextArea exception;
 
 	public GraphicalUserInterface() throws InvocationTargetException, InterruptedException {
@@ -67,10 +67,16 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 				info.add(new JLabel("Destination:"));
 				info.add(dest = new JLabel("-"));
 
-				info.add(new JLabel("Certificate CN:"));
+				info.add(new JLabel("Real Certificate CN:"));
+				info.add(realCn = new JLabel("-"));
+
+				info.add(new JLabel("Real Certificate SANs:"));
+				info.add(realSans = new JLabel("-"));
+
+				info.add(new JLabel("Fake Certificate CN:"));
 				info.add(cn = new JLabel("-"));
 
-				info.add(new JLabel("Certificate SANs:"));
+				info.add(new JLabel("Fake Certificate SANs:"));
 				info.add(sans = new JLabel("-"));
 
 				JPanel infoContainer = new JPanel();
@@ -192,8 +198,9 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 
 			dest.setText("-");
 
+			realCn.setText("-");
+			realSans.setText("-");
 			cn.setText("-");
-
 			sans.setText("-");
 
 			tabs.setEnabledAt(1, false);
@@ -224,10 +231,16 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 			dest.setText(destAddr.getAddress().getHostAddress() + ":" + destAddr.getPort() + " (" + destAddr.getHostName() + ")");
 
 			if (session.isSsl()) {
+				CertificateKey realKey = session.getRealKey();
+				realCn.setText(realKey.getCn());
+				realSans.setText(Strings.join(realKey.getSans(), ", "));
+
 				CertificateKey key = session.getKey();
 				cn.setText(key.getCn());
 				sans.setText(Strings.join(key.getSans(), ", "));
 			} else {
+				realCn.setText("-");
+				realSans.setText("-");
 				cn.setText("-");
 				sans.setText("-");
 			}
