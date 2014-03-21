@@ -1,0 +1,6 @@
+#!/bin/sh -e
+temp=$(mktemp)
+hash=$(openssl x509 -in trusted.crt -subject_hash_old -noout)
+openssl x509 -in trusted.crt -out $hash.0 -text > $temp
+cat $temp >> $hash.0
+rm $temp
