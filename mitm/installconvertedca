@@ -1,0 +1,6 @@
+#!/bin/sh -e
+adb push cd4d9705.0 /sdcard/cd4d9705.0
+adb shell su -c 'mount -o remount,rw /system'
+adb shell su -c 'cp /sdcard/cd4d9705.0 /system/etc/security/cacerts/cd4d9705.0'
+adb shell su -c 'chmod 644 /system/etc/security/cacerts/cd4d9705.0'
+adb shell su -c 'mount -o remount,ro /system'
