@@ -2,7 +2,6 @@ rootProject.name = 'droidssl'
 
 include 'analysis'
 include 'soot-tests'
-include 'apkdl'
 include 'mitm'
 include 'mitm-common'
 include 'mitm-test-client'
