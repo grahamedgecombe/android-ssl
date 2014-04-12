@@ -24,8 +24,7 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 			public void caseInvokeStmt(InvokeStmt stmt) {
 				in.copy(out);
 
-				// TODO: consider super & subtypes (e.g. important for SSLSocketFactory)
-
+				/* if SSLContext.init() is called with a vulnerable TrustManager, mark the SSLContext as vulnerable */
 				InvokeExpr expr = stmt.getInvokeExpr();
 				if (!(expr instanceof InstanceInvokeExpr))
 					return;
@@ -47,6 +46,7 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 			public void caseAssignStmt(AssignStmt stmt) {
 				in.copy(out);
 
+				/* remove the vulnerability property from the left side of the assignment */
 				final Value[] leftBox = new Value[1];
 				Value left = stmt.getLeftOp();
 				leftBox[0] = left;
@@ -62,12 +62,14 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 					}
 				});
 
+				/* check if we need to add the vulnerability property to the left side of the assignment,
+				 * based on the kind of expression on the right side */
 				Value right = stmt.getRightOp();
 				right.apply(new AbstractJimpleValueSwitch() {
 					@Override
 					public void caseNewExpr(NewExpr right) {
+						/* if the right side instantiates a vulnerable TrustManager, make the left side vulnerable */
 						if (right.getBaseType().getSootClass().hasTag(TrustManagerTag.NAME)) {
-							// TODO: this is rather convoluted and needs a way to deal with SAFE/UNKNOWN too
 							TrustManagerTag tag = (TrustManagerTag) right.getBaseType().getSootClass().getTag(TrustManagerTag.NAME);
 							if (tag.getState() == VulnerabilityState.VULNERABLE) {
 								out.add(leftBox[0]);
@@ -77,6 +79,7 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 
 					@Override
 					public void caseLocal(Local right) {
+						/* if the right side is vulnerable, make the left side vulnerable */
 						if (out.contains(right)) {
 							out.add(leftBox[0]);
 						}
@@ -84,6 +87,9 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 
 					@Override
 					public void caseVirtualInvokeExpr(VirtualInvokeExpr right) {
+						/* if a vulnerable SSLContext (right) is used to make an SSLSocketFactory,
+						 * mark the SSLSocketFactory (leftBox[0]) as vulnerable
+						 */
 						SootMethod targetMethod = right.getMethod();
 						if (Signatures.methodSignatureMatches(targetMethod, Types.SSL_CONTEXT, Types.SSL_SOCKET_FACTORY, "getSocketFactory")) {
 							if (out.contains(right.getBase())) {
@@ -97,23 +103,36 @@ public final class TrustManagerFlowAnalysis extends ForwardFlowAnalysis<Unit, Fl
 			@Override
 			public void defaultCase(Object obj) {
 				in.copy(out);
+
+				/* by default: unmark any local registers which are overwritten by the instruction */
+				Stmt stmt = (Stmt) obj;
+				for (ValueBox box : stmt.getDefBoxes()) {
+					out.remove(box.getValue());
+				}
 			}
 		});
 	}
 
 	@Override
-	protected FlowSet newInitialFlow() {
-		return new ArraySparseSet();
-	}
-
-	@Override
 	protected FlowSet entryInitialFlow() {
+		/* the set of vulnerable locals is empty at the entry point */
 		return new ArraySparseSet();
 	}
 
 	@Override
 	protected void merge(FlowSet in1, FlowSet in2, FlowSet out) {
+		/* combine sets of registers by union - this means only a single
+		 * path through the code needs to be considered vulnerable for the
+		 * whole method to be vulnerable */
 		in1.union(in2, out);
+	}
+
+	/* these aren't really related the data flow analysis per se - they just
+	 * depend on the FlowSet implementation chosen
+	 */
+	@Override
+	protected FlowSet newInitialFlow() {
+		return new ArraySparseSet();
 	}
 
 	@Override
