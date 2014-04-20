@@ -30,7 +30,7 @@ public final class MitmKeyManager implements X509KeyManager {
 		this.addr = addr;
 	}
 
-	public Socket getSocket() {
+	public SSLSocket getSocket() {
 		return socket;
 	}
 

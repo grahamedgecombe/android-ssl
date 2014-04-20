@@ -115,7 +115,7 @@ public final class HandshakeRunnable implements Runnable {
 				 * endpoints (with the code directly below).
 				 */
 				secureSocket.startHandshake();
-				Socket other = keyManager.getSocket();
+				SSLSocket other = keyManager.getSocket();
 
 				/*
 				 * Update CertificateKey reference in the Session class. This
@@ -125,6 +125,7 @@ public final class HandshakeRunnable implements Runnable {
 				 */
 				session.setRealKey(keyManager.getRealKey());
 				session.setKey(keyManager.getKey());
+				session.setCipherSuite(other.getSession().getCipherSuite());
 
 				/*
 				 * Create IoCopyRunnables which operate on the intercepted,

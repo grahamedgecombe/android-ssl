@@ -28,7 +28,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 	private Map<Session, JScrollPane> transmitScroll = new HashMap<>();
 	private JTabbedPane tabs;
 
-	private JLabel state, source, dest, realCn, realSans, cn, sans;
+	private JLabel state, source, dest, realCn, realSans, cn, sans, cipherSuite;
 	private JTextArea exception;
 
 	public GraphicalUserInterface() throws InvocationTargetException, InterruptedException {
@@ -78,6 +78,9 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 
 				info.add(new JLabel("Fake Certificate SANs:"));
 				info.add(sans = new JLabel("-"));
+
+				info.add(new JLabel("Cipher Suite:"));
+				info.add(cipherSuite = new JLabel("-"));
 
 				JPanel infoContainer = new JPanel();
 				infoContainer.setLayout(new BorderLayout());
@@ -202,6 +205,7 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 			realSans.setText("-");
 			cn.setText("-");
 			sans.setText("-");
+			cipherSuite.setText("-");
 
 			tabs.setEnabledAt(1, false);
 			tabs.setEnabledAt(2, false);
@@ -239,11 +243,14 @@ public final class GraphicalUserInterface extends UserInterface implements ListS
 				CertificateKey key = session.getKey();
 				cn.setText(key.getCn());
 				sans.setText(Strings.join(key.getSans(), ", "));
+
+				cipherSuite.setText(session.getCipherSuite());
 			} else {
 				realCn.setText("-");
 				realSans.setText("-");
 				cn.setText("-");
 				sans.setText("-");
+				cipherSuite.setText("-");
 			}
 
 			tabs.setComponentAt(1, receiveScroll.get(session));

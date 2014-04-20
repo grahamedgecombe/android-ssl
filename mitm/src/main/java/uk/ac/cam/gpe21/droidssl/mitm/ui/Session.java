@@ -34,6 +34,7 @@ public final class Session {
 	private State state = State.OPEN;
 	private Throwable failureReason;
 	private CertificateKey realKey, key;
+	private String cipherSuite;
 
 	public Session(InetSocketAddress source, InetSocketAddress destination) {
 		this.source = source;
@@ -66,6 +67,14 @@ public final class Session {
 
 	public void setKey(CertificateKey key) {
 		this.key = key;
+	}
+
+	public String getCipherSuite() {
+		return cipherSuite;
+	}
+
+	public void setCipherSuite(String cipherSuite) {
+		this.cipherSuite = cipherSuite;
 	}
 
 	public State getState() {

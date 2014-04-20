@@ -19,12 +19,13 @@ import uk.ac.cam.gpe21.droidssl.mitm.socket.dest.TproxyDestinationFinder;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.SocketFactory;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.StandardSocketFactory;
 import uk.ac.cam.gpe21.droidssl.mitm.socket.factory.TproxySocketFactory;
+import uk.ac.cam.gpe21.droidssl.mitm.ui.UserInterface;
 import uk.ac.cam.gpe21.droidssl.mitm.ui.gui.GraphicalUserInterface;
 import uk.ac.cam.gpe21.droidssl.mitm.ui.headless.HeadlessUserInterface;
-import uk.ac.cam.gpe21.droidssl.mitm.ui.UserInterface;
 import uk.ac.cam.gpe21.droidssl.mitm.util.SocketAddressParser;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import java.io.IOException;
@@ -45,6 +46,33 @@ public final class MitmServer {
 		ctx.init(null, new TrustManager[] {
 			new PermissiveTrustManager()
 		}, null);
+		/* simulate Android cipher suite order */
+		/* (from https://android.googlesource.com/platform/external/conscrypt/+/master/src/main/java/org/conscrypt/NativeCrypto.java) */
+		SSLParameters params = ctx.getDefaultSSLParameters();
+		params.setCipherSuites(new String[]{
+				"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+				"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+				"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+				"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+				"TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+				"TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+				"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+				"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+				"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+				"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+				"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+				"TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+				"TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+				"TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+				"TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+				"TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+				"TLS_RSA_WITH_AES_128_GCM_SHA256",
+				"TLS_RSA_WITH_AES_256_GCM_SHA384",
+				"TLS_RSA_WITH_AES_128_CBC_SHA",
+				"TLS_RSA_WITH_AES_256_CBC_SHA",
+				"SSL_RSA_WITH_RC4_128_SHA",
+		});
+		params.setUseCipherSuitesOrder(true);
 		return ctx.getSocketFactory();
 	}
 
