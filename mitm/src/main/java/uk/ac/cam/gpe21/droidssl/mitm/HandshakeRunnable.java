@@ -125,6 +125,7 @@ public final class HandshakeRunnable implements Runnable {
 				 */
 				session.setRealKey(keyManager.getRealKey());
 				session.setKey(keyManager.getKey());
+				session.setProtocol(other.getSession().getProtocol());
 				session.setCipherSuite(other.getSession().getCipherSuite());
 
 				/*
