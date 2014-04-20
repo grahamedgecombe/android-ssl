@@ -49,7 +49,7 @@ public final class MitmServer {
 		/* simulate Android cipher suite order */
 		/* (from https://android.googlesource.com/platform/external/conscrypt/+/master/src/main/java/org/conscrypt/NativeCrypto.java) */
 		SSLParameters params = ctx.getDefaultSSLParameters();
-		params.setCipherSuites(new String[]{
+		params.setCipherSuites(new String[] {
 			"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
 			"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
 			"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
