@@ -42,35 +42,52 @@ import java.util.concurrent.Executors;
 
 public final class MitmServer {
 	private static SSLSocketFactory createPermissiveSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
-		SSLContext ctx = SSLContext.getInstance("TLS");
+		SSLContext ctx = SSLContext.getInstance("TLSv1");
 		ctx.init(null, new TrustManager[] {
 			new PermissiveTrustManager()
 		}, null);
 		/* simulate Android cipher suite order */
-		/* (from https://android.googlesource.com/platform/external/conscrypt/+/master/src/main/java/org/conscrypt/NativeCrypto.java) */
+		/* from: https://android.googlesource.com/platform/external/conscrypt/+/9b39c872e57b147373ee69a2803dd8f5ef41da2d/src/main/java/org/conscrypt/NativeCrypto.java */
+		/* (the version used in Android 4.4) */
 		SSLParameters params = ctx.getDefaultSSLParameters();
+		params.setProtocols(new String[] {
+			"SSLv3", "TLSv1.0"
+		});
 		params.setCipherSuites(new String[] {
-			"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-			"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-			"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-			"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-			"TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-			"TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+			"SSL_RSA_WITH_RC4_128_MD5",
+			"SSL_RSA_WITH_RC4_128_SHA",
+			"TLS_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+			"TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+			"TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+			"TLS_ECDH_RSA_WITH_RC4_128_SHA",
+			"TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
 			"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
 			"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+			"TLS_ECDHE_RSA_WITH_RC4_128_SHA",
 			"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
 			"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
 			"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
 			"TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
 			"TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
 			"TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-			"TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-			"TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-			"TLS_RSA_WITH_AES_128_GCM_SHA256",
-			"TLS_RSA_WITH_AES_256_GCM_SHA384",
-			"TLS_RSA_WITH_AES_128_CBC_SHA",
-			"TLS_RSA_WITH_AES_256_CBC_SHA",
-			"SSL_RSA_WITH_RC4_128_SHA",
+			"SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+			"TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+			"TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+			"TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+			"TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+			"SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+			"SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+			"SSL_RSA_WITH_DES_CBC_SHA",
+			"SSL_DHE_RSA_WITH_DES_CBC_SHA",
+			"SSL_DHE_DSS_WITH_DES_CBC_SHA",
+			"SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+			"SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+			"SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+			"SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA"
 		});
 		params.setUseCipherSuitesOrder(true);
 		return ctx.getSocketFactory();
