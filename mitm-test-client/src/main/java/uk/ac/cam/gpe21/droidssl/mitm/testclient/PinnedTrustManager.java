@@ -20,6 +20,7 @@ public final class PinnedTrustManager implements X509TrustManager {
 	@Override
 	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 		X509Certificate leaf = chain[0];
+		leaf.checkValidity();
 
 		boolean tbsCertificateEqual = Arrays.equals(certificate.getTBSCertificate(), leaf.getTBSCertificate());
 		boolean signatureAlgorithmEqual = certificate.getSigAlgOID().equals(leaf.getSigAlgOID());
