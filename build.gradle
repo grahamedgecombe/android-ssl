@@ -16,7 +16,7 @@ buildscript {
 	dependencies {
 		classpath group: 'com.github.ben-manes', name: 'gradle-versions-plugin', version: '0.5-beta-1'
 		classpath group: 'eu.appsatori', name: 'gradle-fatjar-plugin', version: '0.2'
-		classpath group: 'com.android.tools.build', name: 'gradle', version: '0.10.0'
+		classpath group: 'com.android.tools.build', name: 'gradle', version: '0.10.1'
 	}
 }
 
