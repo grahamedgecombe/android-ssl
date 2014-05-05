@@ -16,7 +16,6 @@ buildscript {
 	dependencies {
 		classpath group: 'com.github.ben-manes', name: 'gradle-versions-plugin', version: '0.5-beta-1'
 		classpath group: 'eu.appsatori', name: 'gradle-fatjar-plugin', version: '0.2'
-		classpath group: 'com.android.tools.build', name: 'gradle', version: '0.10.1'
 	}
 }
 
@@ -71,19 +70,6 @@ project(':analysis') {
 		exclude 'META-INF/*.DSA'
 		exclude 'META-INF/*.RSA'
 		exclude 'META-INF/*.SF'
-	}
-}
-
-project(':soot-tests') {
-	apply plugin: 'java'
-	apply plugin: 'idea'
-
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
-
-	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
-		compile name: 'soot', version: '20140328'
 	}
 }
 
@@ -285,59 +271,5 @@ project(':mitm-test-sni-server') {
 		exclude 'META-INF/*.DSA'
 		exclude 'META-INF/*.RSA'
 		exclude 'META-INF/*.SF'
-	}
-}
-
-project(':simple-ssl') {
-	apply plugin: 'java'
-	apply plugin: 'idea'
-
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
-
-	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
-	}
-}
-
-project(':test-hv') {
-	apply plugin: 'android'
-	apply plugin: 'idea'
-
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
-
-	android {
-		compileSdkVersion 19
-		buildToolsVersion '19.0.1'
-	}
-
-	idea {
-		module {
-			sourceDirs += file('src/main/java')
-			testSourceDirs += file('src/instrumentTest/java')
-			jdkName = 'android'
-		}
-	}
-}
-
-project(':test-trust') {
-	apply plugin: 'android'
-	apply plugin: 'idea'
-
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
-
-	android {
-		compileSdkVersion 19
-		buildToolsVersion '19.0.1'
-	}
-
-	idea {
-		module {
-			sourceDirs += file('src/main/java')
-			testSourceDirs += file('src/instrumentTest/java')
-			jdkName = 'android'
-		}
 	}
 }
