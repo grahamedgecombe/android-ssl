@@ -123,7 +123,6 @@ public final class StaticAnalyser {
 			 * Perform the analysis.
 			 */
 			Scene.v().loadNecessaryClasses();
-			//PackManager.v().runPacks();
 			Options.v().set_unfriendly_mode(true);
 			Main.main(new String[0]);
 
