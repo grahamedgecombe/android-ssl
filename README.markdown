@@ -14,6 +14,7 @@ man-in-the-middle attack to actively exploit certificate validation
 vulnerabilities.
 
 I developed these tools as part of my [Part II project][project] at Cambridge.
+Thanks to [Dr Alastair Beresford][arb] for supervising the project.
 
 Note: I have done some rewriting of the repository with `git filter-branch` to
 tidy it up. Some of the commit messages may therefore not make much sense.
@@ -206,3 +207,4 @@ full terms of the Apache License are available in the `LICENSE` file.
 [bc]: https://www.bouncycastle.org/java.html
 [jna]: https://github.com/twall/jna
 [squid]: http://wiki.squid-cache.org/Features/Tproxy4
+[arb]: http://www.cl.cam.ac.uk/~arb33/
