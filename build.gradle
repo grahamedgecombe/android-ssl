@@ -57,7 +57,7 @@ allprojects {
 }
 
 idea {
-	project.languageLevel = '1.7'
+	project.languageLevel = '1.8'
 }
 
 /* TODO reduce duplication */
@@ -67,8 +67,8 @@ project(':analysis') {
 	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
@@ -97,12 +97,6 @@ project(':mitm') {
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
 
-	idea {
-		module {
-			jdkName = '1.8'
-		}
-	}
-
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
@@ -125,8 +119,8 @@ project(':mitm-common') {
 	apply plugin: 'java'
 	apply plugin: 'idea'
 
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
@@ -140,8 +134,8 @@ project(':mitm-test-client') {
 	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
@@ -165,8 +159,8 @@ project(':mitm-test-server') {
 	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
@@ -189,8 +183,8 @@ project(':mitm-test-plain-client') {
 	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
@@ -212,8 +206,8 @@ project(':mitm-test-plain-server') {
 	apply plugin: 'fatjar'
 	apply plugin: 'idea'
 
-	sourceCompatibility = 1.7
-	targetCompatibility = 1.7
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
@@ -238,12 +232,6 @@ project(':mitm-test-sni-client') {
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
 
-	idea {
-		module {
-			jdkName = '1.8'
-		}
-	}
-
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
@@ -267,12 +255,6 @@ project(':mitm-test-sni-server') {
 
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
-
-	idea {
-		module {
-			jdkName = '1.8'
-		}
-	}
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
