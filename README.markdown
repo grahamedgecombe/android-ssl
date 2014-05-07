@@ -180,6 +180,8 @@ is present:
 Dependencies
 ------------
 
+The following Java libraries are used by the tools:
+
 * [Soot][soot]
 * [Paddle][paddle] (optional)
 * [Jedd][jedd] (optional)
