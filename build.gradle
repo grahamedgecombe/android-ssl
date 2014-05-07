@@ -45,14 +45,6 @@ allprojects {
 			url 'https://oss.sonatype.org/content/repositories/releases/'
 		}
 	}
-
-	configurations {
-		doclet
-	}
-
-	dependencies {
-		doclet group: 'org.jboss.apiviz', name: 'apiviz', version: '1.3.2.GA'
-	}
 }
 
 /* TODO reduce duplication */
