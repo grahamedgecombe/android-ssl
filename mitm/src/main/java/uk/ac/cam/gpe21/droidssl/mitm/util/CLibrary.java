@@ -27,13 +27,18 @@ public interface CLibrary extends Library {
 
 	/* from /usr/include/bits/socket.h */
 	public final int PF_INET = 2;
+	public final int PF_INET6 = 10;
 
 	/* from /usr/include/bits/in.h */
 	public final int SOL_IP = 0;
+	public final int SOL_IPV6 = 41;
 	public final int IP_TRANSPARENT = 19;
 
 	/* from /usr/include/linux/netfilter_ipv4.h */
 	public final int SO_ORIGINAL_DST = 80;
+
+	/* from /usr/include/linux/netfilter_ipv6/ip6_tables.h */
+	public final int IP6T_SO_ORIGINAL_DST = 80;
 
 	/* from /usr/include/linux/in.h */
 	public final class sockaddr_in extends Structure {
@@ -45,6 +50,20 @@ public interface CLibrary extends Library {
 		@Override
 		protected List getFieldOrder() {
 			return Arrays.asList("sin_family", "sin_port", "sin_addr", "sin_zero");
+		}
+	}
+
+	/* from /usr/include/linux/in6.h */
+	public final class sockaddr_in6 extends Structure {
+		public short  sin6_family;
+		public byte[] sin6_port     = new byte[2];
+		public byte[] sin6_flowinfo = new byte[4];
+		public byte[] sin6_addr     = new byte[16];
+		public int    sin6_scope_id;
+
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList("sin6_family", "sin6_port", "sin6_flowinfo", "sin6_addr", "sin6_scope_id");
 		}
 	}
 

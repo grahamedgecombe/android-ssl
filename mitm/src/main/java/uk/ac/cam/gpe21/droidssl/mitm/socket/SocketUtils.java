@@ -25,10 +25,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -176,6 +173,17 @@ public final class SocketUtils {
 	}
 
 	public static InetSocketAddress getOriginalDestination(Socket socket) throws IOException {
+		InetAddress localAddress = socket.getLocalAddress();
+		if (localAddress instanceof Inet4Address) {
+			return getOriginalDestination4(socket);
+		} else if (localAddress instanceof Inet6Address) {
+			return getOriginalDestination6(socket);
+		} else {
+			throw new IOException("Unknown local address type (expected java.net.Inet{4,6}Address): " + localAddress.getClass().getName());
+		}
+	}
+
+	public static InetSocketAddress getOriginalDestination4(Socket socket) throws IOException {
 		int fd = getFileDescriptor(socket);
 
 		CLibrary.sockaddr_in addr = new CLibrary.sockaddr_in();
@@ -210,6 +218,30 @@ public final class SocketUtils {
 			return new InetSocketAddress(ip, port);
 		} else {
 			throw new IOException("Unknown protocol family (expected PF_INET): " + addr.sin_family);
+		}
+	}
+
+	public static InetSocketAddress getOriginalDestination6(Socket socket) throws IOException {
+		int fd = getFileDescriptor(socket);
+
+		CLibrary.sockaddr_in6 addr = new CLibrary.sockaddr_in6();
+		try {
+			IntByReference len = new IntByReference(addr.size());
+			CLibrary.INSTANCE.getsockopt(fd, CLibrary.SOL_IPV6, CLibrary.IP6T_SO_ORIGINAL_DST, addr.getPointer(), len);
+
+			/* See comment in getOriginalDestination4(). */
+			addr.read();
+		} catch (LastErrorException ex) {
+			throw new IOException("getsockopt: " + CLibrary.INSTANCE.strerror(ex.getErrorCode()));
+		}
+
+		if (addr.sin6_family == CLibrary.PF_INET6) {
+			/* See comment in getOriginalDestination4(). */
+			int port = ((addr.sin6_port[0] & 0xFF) << 8) | (addr.sin6_port[1] & 0xFF);
+			InetAddress ip = InetAddress.getByAddress(addr.sin6_addr);
+			return new InetSocketAddress(ip, port);
+		} else {
+			throw new IOException("Unknown protocol family (expected PF_INET6): " + addr.sin6_family);
 		}
 	}
 
