@@ -24,8 +24,8 @@ Building
 Run `gradle` to build the tools and run the unit tests.
 
 There's also a separate set of integration tests for the man-in-the-middle tool
-which can be run by typing `./mitm-test/run-tests.sh`. Warning: the integration
-tests will modify your iptables configuration and might not restore it properly
+which can be run by typing `./mitm-test/run`. Warning: the integration tests
+will modify your iptables configuration and might not restore it properly
 (especially if they fail).
 
 Static Analysis
