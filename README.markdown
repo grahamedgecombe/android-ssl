@@ -210,3 +210,4 @@ full terms of the Apache License are available in the `LICENSE` file.
 [jna]: https://github.com/twall/jna
 [squid]: http://wiki.squid-cache.org/Features/Tproxy4
 [arb]: http://www.cl.cam.ac.uk/~arb33/
+[dsniff]: http://www.monkey.org/~dugsong/dsniff/
