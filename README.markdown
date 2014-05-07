@@ -15,6 +15,9 @@ vulnerabilities.
 
 I developed these tools as part of my [Part II project][project] at Cambridge.
 
+Note: I have done some rewriting of the repository with `git filter-branch` to
+tidy it up. Some of the commit messages may therefore not make much sense.
+
 Building
 --------
 
