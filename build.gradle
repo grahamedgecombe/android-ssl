@@ -47,17 +47,21 @@ allprojects {
 	}
 }
 
-/* TODO reduce duplication */
-
-project(':analysis') {
+subprojects {
 	apply plugin: 'java'
-	apply plugin: 'fatjar'
 
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
 
 	dependencies {
 		testCompile group: 'junit', name: 'junit', version: '4.11'
+	}
+}
+
+project(':analysis') {
+	apply plugin: 'fatjar'
+
+	dependencies {
 		compile name: 'soot', version: '20140328'
 		compile name: 'paddle', version: '20120817'
 		compile name: 'jedd-runtime', version: '20120817'
@@ -76,14 +80,9 @@ project(':analysis') {
 }
 
 project(':mitm') {
-	apply plugin: 'java'
 	apply plugin: 'fatjar'
 
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
 	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
 		compile group: 'net.java.dev.jna', name: 'jna', version: '4.1.0'
 		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.6'
@@ -101,27 +100,16 @@ project(':mitm') {
 }
 
 project(':mitm-common') {
-	apply plugin: 'java'
-
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
 	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.50'
 		compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.50'
 	}
 }
 
 project(':mitm-test-client') {
-	apply plugin: 'java'
 	apply plugin: 'fatjar'
 
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
 	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
 		compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '4.6'
 	}
@@ -138,14 +126,9 @@ project(':mitm-test-client') {
 }
 
 project(':mitm-test-server') {
-	apply plugin: 'java'
 	apply plugin: 'fatjar'
 
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
 	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
 	}
 
@@ -161,15 +144,7 @@ project(':mitm-test-server') {
 }
 
 project(':mitm-test-plain-client') {
-	apply plugin: 'java'
 	apply plugin: 'fatjar'
-
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
-	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
-	}
 
 	fatJar {
 		manifest {
@@ -183,15 +158,7 @@ project(':mitm-test-plain-client') {
 }
 
 project(':mitm-test-plain-server') {
-	apply plugin: 'java'
 	apply plugin: 'fatjar'
-
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
-	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
-	}
 
 	fatJar {
 		manifest {
@@ -205,14 +172,9 @@ project(':mitm-test-plain-server') {
 }
 
 project(':mitm-test-sni-client') {
-	apply plugin: 'java'
 	apply plugin: 'fatjar'
 
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
 	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
 	}
 
@@ -228,14 +190,9 @@ project(':mitm-test-sni-client') {
 }
 
 project(':mitm-test-sni-server') {
-	apply plugin: 'java'
 	apply plugin: 'fatjar'
 
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-
 	dependencies {
-		testCompile group: 'junit', name: 'junit', version: '4.11'
 		compile project(':mitm-common')
 	}
 
