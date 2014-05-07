@@ -1,0 +1,15 @@
+#!/bin/sh -e
+echo "*** Generating TRUSTED certificate authority:"
+openssl genrsa -out trusted.key 2048
+openssl req -new -x509 -days 3650 -key trusted.key -out trusted.crt
+
+echo "*** Generating UNTRUSTED certificate authority:"
+openssl genrsa -out untrusted.key 2048
+openssl req -new -x509 -days 3650 -key untrusted.key -out untrusted.crt
+
+echo "*** Converting to Android format..."
+temp=$(mktemp)
+hash=$(openssl x509 -in trusted.crt -subject_hash_old -noout)
+openssl x509 -in trusted.crt -out $hash.0 -text > $temp
+cat $temp >> $hash.0
+rm $temp

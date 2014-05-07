@@ -48,7 +48,8 @@ connection easier.
 
 Before running the man-in-the-middle tool for the first time you must generate
 a trusted and untrusted certificate authority, and install the trust
-certificate on your phone.
+certificate on your phone. Run `cd mitm; ./make-ca; ./install-ca` to do so.
+Your phone must be rooted to install the trusted certificate in this manner.
 
 Several required options must be specified on the command line (even with the
 GUI mode):

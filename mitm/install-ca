@@ -1,0 +1,7 @@
+#!/bin/sh -e
+hash=$(openssl x509 -in trusted.crt -subject_hash_old -noout)
+adb push $hash.0 /sdcard/$hash.0
+adb shell su -c "mount -o remount,rw /system"
+adb shell su -c "cp /sdcard/$hash.0 /system/etc/security/cacerts/$hash.0"
+adb shell su -c "chmod 644 /system/etc/security/cacerts/$hash.0"
+adb shell su -c "mount -o remount,ro /system"
