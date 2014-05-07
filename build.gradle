@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+defaultTasks 'fatJar', 'check'
+
 apply plugin: 'base'
 apply plugin: 'versions'
 
