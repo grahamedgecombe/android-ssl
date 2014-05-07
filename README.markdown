@@ -13,6 +13,10 @@ certificate validation code. The other tool actually tries to carry out a
 man-in-the-middle attack to actively exploit certificate validation
 vulnerabilities.
 
+These tools should be useful for developers who want to check if their own
+applications use SSL securely on a private network that they own. They are not
+intended for malicious use on public networks.
+
 I developed these tools as part of my [Part II project][project] at Cambridge.
 Thanks to [Dr Alastair Beresford][arb] for supervising the project.
 
