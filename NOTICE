@@ -1,0 +1,9 @@
+Soot, Paddle and Jedd, which are dependencies of the static analysis tool and
+are distributed as binaries in this repository (due to not being available in
+Maven central) are all licensed under the GNU LGPL license. Their source code
+and licensing information is available in the following Git repositories hosted
+on GitHub:
+
+ * https://github.com/Sable/soot
+ * https://github.com/Sable/paddle
+ * https://github.com/Sable/jedd
