@@ -53,6 +53,8 @@ Before running the man-in-the-middle tool for the first time you must generate
 a trusted and untrusted certificate authority, and install the trust
 certificate on your phone. Run `cd mitm; ./make-ca; ./install-ca` to do so.
 Your phone must be rooted to install the trusted certificate in this manner.
+The Android SDK's `tools` and `platform-tools` directories must also be in your
+`$PATH` environment variable.
 
 Several required options must be specified on the command line (even with the
 GUI mode):
